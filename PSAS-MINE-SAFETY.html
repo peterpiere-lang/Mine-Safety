@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PSAS — Predictive Safety Analytics System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg0:#07090d; --bg1:#0c1018; --bg2:#121820; --bg3:#182030;
+  --border:#1e2d42; --border2:#273d58;
+  --amber:#f5a623; --amber2:#ffcc5c; --amber-dim:#6a3f00;
+  --red:#e84040; --red-dim:#4a1010;
+  --green:#27c97a; --green-dim:#093d22;
+  --blue:#3ab8f5; --blue-dim:#082d4a;
+  --violet:#a78bfa; --violet-dim:#2d1f5e;
+  --text1:#dce8f5; --text2:#7a92b0; --text3:#3a5070;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Barlow Condensed',sans-serif;
+  --accent:#f5a623; --accent-dim:#6a3f00;
+  --glow-amber:0 0 20px rgba(245,166,35,.3);
+  --glow-red:0 0 20px rgba(232,64,64,.3);
+  --glow-green:0 0 20px rgba(39,201,122,.2);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--bg0);color:var(--text1);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+
+/* GRAIN OVERLAY */
+body::before{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.6;}
+
+/* SCANLINE */
+body::after{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  pointer-events:none;z-index:9998;}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-columns:280px 1fr;grid-template-rows:60px 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;background:linear-gradient(90deg,#0a0e16,#0c1018);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;padding:0 1.5rem;gap:1.5rem;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 0 var(--border2),0 4px 20px rgba(0,0,0,.6);}
+.topbar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--red),var(--accent),transparent);
+  opacity:.7;}
+.sidebar{background:var(--bg1);border-right:1px solid var(--border);
+  padding:1rem .9rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;}
+.main{padding:1.2rem 1.4rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.2rem;}
+
+/* TOPBAR */
+.logo{font-family:var(--font-display);font-size:1.6rem;letter-spacing:.15em;
+  color:var(--accent);text-shadow:var(--glow-amber);white-space:nowrap;}
+.logo span{color:var(--text2);font-size:.9rem;letter-spacing:.08em;}
+.topbar-center{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.18em;color:var(--text3);}
+.topbar-status{margin-left:auto;display:flex;align-items:center;gap:1.2rem;}
+.status-pill{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;
+  display:flex;align-items:center;gap:.35rem;color:var(--text2);}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.clock{font-family:var(--font-display);font-size:1.2rem;color:var(--text2);
+  letter-spacing:.1em;min-width:86px;text-align:right;
+  text-shadow:0 0 12px rgba(122,146,176,.4);}
+
+/* SIDEBAR */
+.sidebar-section{display:flex;flex-direction:column;gap:.5rem;}
+.sidebar-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.2em;
+  color:var(--text3);text-transform:uppercase;
+  border-bottom:1px solid var(--border);padding-bottom:.3rem;margin-bottom:.1rem;}
+.ctrl-row{display:flex;flex-direction:column;gap:.2rem;}
+.ctrl-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text2);letter-spacing:.05em;}
+select,input[type=range]{width:100%;background:var(--bg2);border:1px solid var(--border);
+  color:var(--text1);font-family:var(--font-mono);font-size:.7rem;
+  padding:.35rem .55rem;outline:none;cursor:pointer;transition:border-color .2s;}
+select:hover,select:focus{border-color:var(--accent);}
+input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
+.range-val{font-family:var(--font-display);font-size:1.1rem;color:var(--accent);}
+.sim-btns{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;}
+.btn{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;
+  padding:.45rem;border:1px solid var(--border2);background:var(--bg2);
+  color:var(--text2);cursor:pointer;text-transform:uppercase;
+  transition:all .18s;text-align:center;}
+.btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.btn.primary{border-color:var(--accent);color:var(--accent);
+  background:var(--accent-dim);grid-column:1/-1;
+  box-shadow:var(--glow-amber);}
+.btn.danger{border-color:var(--red);color:var(--red);}
+.btn.danger:hover{background:var(--red-dim);box-shadow:var(--glow-red);}
+.btn.blue{border-color:var(--blue);color:var(--blue);
+  background:var(--blue-dim);grid-column:1/-1;}
+.btn.blue:hover{background:#0f3d5c;}
+.sim-time-display{font-family:var(--font-display);font-size:3rem;
+  color:var(--accent);letter-spacing:.06em;text-align:center;
+  line-height:1;text-shadow:var(--glow-amber);}
+.sim-time-label{font-family:var(--font-mono);font-size:.55rem;
+  color:var(--text3);letter-spacing:.18em;text-align:center;margin-top:.2rem;}
+.progress-bar-wrap{height:3px;background:var(--bg3);overflow:hidden;position:relative;}
+.progress-bar-fill{height:100%;
+  background:linear-gradient(90deg,var(--accent-dim),var(--accent),var(--amber2));
+  transition:width .8s ease;position:relative;}
+.progress-bar-fill::after{content:'';position:absolute;right:0;top:-2px;
+  width:2px;height:7px;background:var(--amber2);
+  box-shadow:0 0 8px var(--amber2);}
+
+/* SECTION HEADERS */
+.section-head{display:flex;align-items:baseline;gap:.6rem;
+  padding-bottom:.5rem;border-bottom:1px solid var(--border);margin-bottom:.7rem;}
+.section-title{font-family:var(--font-display);font-size:1rem;
+  letter-spacing:.12em;color:var(--text1);}
+.section-sub{font-family:var(--font-mono);font-size:.55rem;
+  letter-spacing:.15em;color:var(--text3);text-transform:uppercase;}
+.section-badge{margin-left:auto;font-family:var(--font-mono);font-size:.58rem;
+  padding:.12rem .45rem;border:1px solid var(--accent);color:var(--accent);
+  letter-spacing:.1em;animation:badge-pulse 2s ease-in-out infinite;}
+@keyframes badge-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ALERT BANNER */
+.alert-banner{padding:.55rem 1.1rem;
+  border-left:3px solid var(--amber);
+  background:linear-gradient(90deg,rgba(245,166,35,.1),transparent);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;
+  transition:all .35s;position:relative;overflow:hidden;}
+.alert-banner::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(245,166,35,.05),transparent);
+  animation:banner-scan 3s linear infinite;}
+@keyframes banner-scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.alert-banner.critical{border-color:var(--red);
+  background:linear-gradient(90deg,rgba(232,64,64,.18),transparent);
+  animation:alert-pulse 1.5s ease-in-out infinite,banner-scan 0s;}
+.alert-banner.safe{border-color:var(--green);
+  background:linear-gradient(90deg,rgba(39,201,122,.1),transparent);}
+@keyframes alert-pulse{
+  0%,100%{box-shadow:inset 2px 0 0 var(--red);}
+  50%{box-shadow:inset 2px 0 0 var(--red),0 0 30px rgba(232,64,64,.25);}
+}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.6rem;}
+.kpi-card{background:var(--bg1);border:1px solid var(--border);
+  border-top:2px solid var(--border2);
+  padding:.8rem .75rem .65rem;position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),transparent);}
+.kpi-card.warn{border-top-color:var(--amber);box-shadow:0 0 0 1px rgba(245,166,35,.1);}
+.kpi-card.danger{border-top-color:var(--red);box-shadow:0 0 0 1px rgba(232,64,64,.15);}
+.kpi-card.safe{border-top-color:var(--green);box-shadow:0 0 0 1px rgba(39,201,122,.1);}
+.kpi-label{font-family:var(--font-mono);font-size:.53rem;
+  letter-spacing:.14em;color:var(--text3);text-transform:uppercase;margin-bottom:.25rem;}
+.kpi-value{font-family:var(--font-display);font-size:1.7rem;line-height:1;
+  color:var(--amber2);letter-spacing:.04em;transition:color .3s;}
+.kpi-value.danger{color:var(--red);}
+.kpi-value.warn{color:var(--amber);}
+.kpi-value.safe{color:var(--green);}
+.kpi-delta{font-family:var(--font-mono);font-size:.56rem;color:var(--text3);margin-top:.18rem;}
+.kpi-delta.up{color:var(--red);} .kpi-delta.down{color:var(--green);}
+
+/* LAYOUT */
+.row-6040{display:grid;grid-template-columns:1.5fr 1fr;gap:1rem;}
+.panel{background:var(--bg1);border:1px solid var(--border);padding:.9rem 1rem;}
+
+/* MAP LEGEND */
+.map-legend{
+  display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;
+  padding:.4rem .5rem;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-top:none;
+}
+.map-legend-label{
+  font-family:var(--font-mono);font-size:.52rem;
+  letter-spacing:.18em;color:var(--text3);
+  text-transform:uppercase;margin-right:.2rem;
+  padding-right:.7rem;border-right:1px solid var(--border2);
+}
+.map-legend-item{
+  font-family:var(--font-mono);font-size:.6rem;
+  color:var(--text2);letter-spacing:.05em;
+  display:flex;align-items:center;gap:.25rem;
+}
+
+/* WORKER ASSIGNMENT CARDS */
+.worker-card{display:flex;align-items:center;gap:.7rem;
+  padding:.5rem .7rem;margin-bottom:.4rem;
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--border2);transition:border-color .2s;}
+.worker-card.critical{border-left-color:var(--red);}
+.worker-card.high{border-left-color:var(--amber);}
+.worker-card.team1{border-left-color:var(--red);background:rgba(232,64,64,.06);}
+.worker-card.team2{border-left-color:var(--blue);background:rgba(58,184,245,.06);}
+.wc-info{flex:1;min-width:0;}
+.wc-name{font-family:var(--font-mono);font-size:.65rem;
+  color:var(--text1);font-weight:700;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;}
+.wc-meta{font-family:var(--font-mono);font-size:.55rem;color:var(--text3);margin-top:.1rem;}
+.wc-risk{font-family:var(--font-display);font-size:1.3rem;
+  letter-spacing:.04em;flex-shrink:0;min-width:44px;text-align:right;}
+.wc-btns{display:flex;gap:.3rem;flex-shrink:0;}
+
+/* RESCUE TEAM TRACKER */
+.team-panel{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem;}
+.team-card{background:var(--bg2);border:1px solid var(--border);padding:.6rem .7rem;}
+.team-card.team1{border-top:2px solid var(--red);}
+.team-card.team2{border-top:2px solid var(--blue);}
+.team-title{font-family:var(--font-display);font-size:.85rem;letter-spacing:.1em;margin-bottom:.4rem;}
+.team-card.team1 .team-title{color:var(--red);}
+.team-card.team2 .team-title{color:var(--blue);}
+.team-member{font-family:var(--font-mono);font-size:.58rem;color:var(--text2);
+  padding:.18rem .3rem;margin-bottom:.15rem;
+  border-left:2px solid var(--border2);
+  display:flex;justify-content:space-between;align-items:center;gap:.4rem;}
+.team-member.team1{border-color:var(--red);}
+.team-member.team2{border-color:var(--blue);}
+.team-member-risk{font-weight:700;flex-shrink:0;}
+.team-empty{font-family:var(--font-mono);font-size:.58rem;color:var(--text3);
+  font-style:italic;padding:.2rem 0;}
+.assign-btn{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.06em;
+  padding:.1rem .3rem;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text3);cursor:pointer;
+  transition:all .15s;flex-shrink:0;}
+.assign-btn.t1{border-color:var(--red);color:var(--red);}
+.assign-btn.t1:hover{background:var(--red-dim);}
+.assign-btn.t2{border-color:var(--blue);color:var(--blue);}
+.assign-btn.t2:hover{background:var(--blue-dim);}
+.assign-btn.unassign{border-color:var(--border2);color:var(--text3);}
+.assign-btn.unassign:hover{border-color:var(--red);color:var(--red);}
+.team-assign-row{display:flex;gap:.3rem;align-items:center;flex-shrink:0;}
+
+/* EXPORT BUTTON */
+.export-btn{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;
+  padding:.45rem 1rem;border:1px solid var(--green);
+  background:var(--green-dim);color:var(--green);
+  cursor:pointer;text-transform:uppercase;transition:all .2s;
+  box-shadow:0 0 12px rgba(39,201,122,.15);}
+.export-btn:hover{background:#0d5c30;box-shadow:0 0 20px rgba(39,201,122,.3);}
+
+/* MAP */
+#map-canvas{width:100%;height:300px;background:var(--bg0);
+  border:1px solid var(--border);cursor:crosshair;display:block;}
+
+/* ZONE COMPARISON */
+.zone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;}
+.zone-card{background:var(--bg2);border:1px solid var(--border);
+  padding:.6rem .7rem;position:relative;transition:border-color .3s;}
+.zone-card.incident{border-color:var(--amber);box-shadow:0 0 0 1px rgba(245,166,35,.15);}
+.zone-card.danger{border-color:var(--red);box-shadow:0 0 0 1px rgba(232,64,64,.2);}
+.zone-name{font-family:var(--font-display);font-size:.85rem;
+  letter-spacing:.1em;color:var(--text1);margin-bottom:.4rem;}
+.zone-stat{display:flex;justify-content:space-between;align-items:center;margin-bottom:.15rem;}
+.zone-stat-label{font-family:var(--font-mono);font-size:.52rem;color:var(--text3);letter-spacing:.08em;}
+.zone-stat-val{font-family:var(--font-mono);font-size:.62rem;font-weight:700;}
+.zone-risk-bar{height:2px;background:var(--bg3);margin-top:.4rem;overflow:hidden;}
+.zone-risk-fill{height:100%;transition:width .8s ease,background .4s;}
+
+/* SENSORS */
+.sensor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;}
+.sensor-card{background:var(--bg2);border:1px solid var(--border);
+  padding:.65rem .75rem;position:relative;transition:border-color .3s;}
+.sensor-card.danger{border-color:var(--red);}
+.sensor-card.warn{border-color:var(--amber);}
+.sensor-name{font-family:var(--font-mono);font-size:.56rem;
+  letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:.2rem;}
+.sensor-val{font-family:var(--font-display);font-size:1.5rem;
+  letter-spacing:.06em;color:var(--text1);line-height:1;}
+.sensor-unit{font-family:var(--font-mono);font-size:.56rem;color:var(--text3);}
+.sensor-bar{height:2px;background:var(--bg3);margin-top:.4rem;overflow:hidden;}
+.sensor-bar-fill{height:100%;transition:width .8s ease,background .4s;}
+.sensor-status{position:absolute;top:.5rem;right:.5rem;width:6px;height:6px;border-radius:50%;}
+
+/* RESCUE TABLE */
+.rescue-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:.65rem;}
+.rescue-table th{text-align:left;padding:.35rem .55rem;color:var(--text3);
+  letter-spacing:.1em;border-bottom:1px solid var(--border);
+  font-weight:400;text-transform:uppercase;font-size:.55rem;}
+.rescue-table td{padding:.42rem .55rem;border-bottom:1px solid var(--border);
+  color:var(--text1);transition:background .2s;}
+.rescue-table tr:hover td{background:var(--bg2);}
+.risk-pill{display:inline-block;padding:.08rem .35rem;
+  font-size:.57rem;letter-spacing:.08em;font-weight:700;}
+.risk-pill.critical{background:var(--red-dim);color:var(--red);border:1px solid var(--red);}
+.risk-pill.high{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid var(--amber-dim);}
+.risk-pill.medium{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);}
+.rescue-table tr.manual-row td{background:rgba(58,184,245,.06);border-left:2px solid var(--blue);}
+.rescue-table tr.manual-row:hover td{background:rgba(58,184,245,.12);}
+.rescue-table tr.team1-row td{background:rgba(232,64,64,.05);border-left:2px solid var(--red);}
+.rescue-table tr.team2-row td{background:rgba(58,184,245,.05);border-left:2px solid var(--blue);}
+.manual-badge{display:inline-block;font-family:var(--font-mono);font-size:.5rem;
+  padding:.08rem .28rem;border:1px solid var(--blue);
+  color:var(--blue);background:var(--blue-dim);vertical-align:middle;margin-left:.3rem;}
+.evac-badge{display:inline-block;font-family:var(--font-mono);font-size:.5rem;
+  padding:.08rem .28rem;border:1px solid var(--green);
+  color:var(--green);background:var(--green-dim);
+  vertical-align:middle;margin-left:.3rem;
+  animation:evac-flash .8s ease-in-out infinite;}
+@keyframes evac-flash{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* AI COMMANDS */
+.cmd-list{display:flex;flex-direction:column;gap:.4rem;}
+.cmd-item{display:flex;align-items:flex-start;gap:.6rem;
+  padding:.55rem .75rem;border-left:3px solid var(--border2);
+  background:var(--bg2);font-size:.8rem;font-family:var(--font-body);
+  font-weight:500;letter-spacing:.02em;animation:slide-in .3s ease;}
+@keyframes slide-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.cmd-item.critical{border-color:var(--red);background:rgba(232,64,64,.07);}
+.cmd-item.warning{border-color:var(--amber);background:rgba(245,166,35,.06);}
+.cmd-item.safe{border-color:var(--green);background:rgba(39,201,122,.06);}
+.cmd-icon{font-size:.95rem;flex-shrink:0;}
+
+/* INCIDENT TIMELINE */
+.timeline-wrap{display:flex;flex-direction:column;gap:.3rem;
+  max-height:200px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.timeline-entry{display:flex;gap:.7rem;align-items:flex-start;
+  padding:.35rem .5rem;border-left:2px solid var(--border2);
+  font-family:var(--font-mono);font-size:.62rem;animation:tl-in .3s ease;}
+@keyframes tl-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.timeline-entry.critical{border-color:var(--red);background:rgba(232,64,64,.06);}
+.timeline-entry.warning{border-color:var(--amber);background:rgba(245,166,35,.05);}
+.timeline-entry.info{border-color:var(--blue);background:rgba(58,184,245,.05);}
+.timeline-entry.safe{border-color:var(--green);background:rgba(39,201,122,.05);}
+.tl-time{color:var(--accent);min-width:32px;flex-shrink:0;}
+.tl-msg{color:var(--text2);line-height:1.4;}
+
+/* SHIFT INDICATOR */
+.shift-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
+.shift-badge{font-family:var(--font-mono);font-size:.58rem;
+  padding:.15rem .5rem;border:1px solid var(--border2);
+  color:var(--text2);letter-spacing:.08em;}
+.shift-badge.active{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+.shift-badge.incoming{border-color:var(--blue);color:var(--blue);background:var(--blue-dim);}
+
+/* AI CHAT */
+.chat-panel{background:var(--bg1);border:1px solid var(--border);
+  display:flex;flex-direction:column;height:370px;}
+.chat-head{padding:.65rem .9rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.55rem;
+  font-family:var(--font-display);font-size:.9rem;letter-spacing:.12em;}
+.ai-dot{width:8px;height:8px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0;}
+.chat-messages{flex:1;overflow-y:auto;padding:.75rem .9rem;
+  display:flex;flex-direction:column;gap:.65rem;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.msg{display:flex;flex-direction:column;gap:.18rem;
+  max-width:88%;animation:msg-in .22s ease;}
+@keyframes msg-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.msg.user{align-self:flex-end;}
+.msg-label{font-family:var(--font-mono);font-size:.52rem;
+  letter-spacing:.12em;color:var(--text3);text-transform:uppercase;}
+.msg.user .msg-label{text-align:right;}
+.msg-bubble{padding:.45rem .75rem;font-family:var(--font-body);
+  font-size:.83rem;line-height:1.5;background:var(--bg2);
+  border:1px solid var(--border);color:var(--text1);}
+.msg.user .msg-bubble{background:var(--accent-dim);border-color:var(--accent);color:var(--amber2);}
+.msg-bubble.thinking{color:var(--text3);font-style:italic;font-size:.78rem;}
+.chat-input-row{padding:.65rem .9rem;border-top:1px solid var(--border);
+  display:flex;gap:.55rem;align-items:center;}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--border);
+  color:var(--text1);font-family:var(--font-mono);font-size:.7rem;
+  padding:.45rem .65rem;outline:none;transition:border-color .2s;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-send{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;
+  padding:.45rem .85rem;border:1px solid var(--accent);
+  background:var(--accent-dim);color:var(--amber2);cursor:pointer;
+  text-transform:uppercase;transition:all .18s;white-space:nowrap;
+  box-shadow:var(--glow-amber);}
+.chat-send:hover{background:var(--amber-dim);}
+.chat-send:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+.api-key-row{padding:.45rem .9rem;border-bottom:1px solid var(--border);
+  display:flex;gap:.45rem;align-items:center;}
+.api-key-input{flex:1;background:var(--bg0);border:1px solid var(--border);
+  color:var(--text2);font-family:var(--font-mono);font-size:.62rem;
+  padding:.3rem .55rem;outline:none;}
+.api-key-input:focus{border-color:var(--accent);}
+.api-key-btn{font-family:var(--font-mono);font-size:.58rem;padding:.3rem .65rem;
+  border:1px solid var(--border2);background:var(--bg2);color:var(--text2);
+  cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;}
+.api-key-btn:hover{border-color:var(--accent);color:var(--accent);}
+.api-key-label{font-family:var(--font-mono);font-size:.55rem;
+  color:var(--text3);letter-spacing:.1em;white-space:nowrap;}
+.quick-prompts{display:flex;flex-wrap:wrap;gap:.35rem;
+  padding:.45rem .9rem;border-bottom:1px solid var(--border);}
+.quick-btn{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.05em;
+  padding:.18rem .5rem;border:1px solid var(--border2);
+  background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .15s;}
+.quick-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* FEATURE IMPORTANCE */
+.feat-list{display:flex;flex-direction:column;gap:.45rem;}
+.feat-row{display:flex;flex-direction:column;gap:.18rem;}
+.feat-top{display:flex;justify-content:space-between;align-items:baseline;}
+.feat-name{font-family:var(--font-mono);font-size:.62rem;color:var(--text2);}
+.feat-pct{font-family:var(--font-display);font-size:.88rem;color:var(--accent);}
+.feat-bar{height:2px;background:var(--bg3);}
+.feat-bar-fill{height:100%;transition:width 1s ease,background .4s;}
+
+/* TICKER */
+.ticker-wrap{background:var(--bg0);border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  padding:.45rem .75rem;font-family:var(--font-mono);font-size:.68rem;
+  color:var(--text2);letter-spacing:.05em;min-height:1.8rem;
+  transition:border-color .4s;position:relative;overflow:hidden;}
+.ticker-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;
+  width:40px;background:linear-gradient(90deg,transparent,var(--bg0));}
+.ticker-time{color:var(--accent);margin-right:.55rem;}
+
+/* ADD WORKER */
+.add-worker-form{display:flex;flex-direction:column;gap:.45rem;}
+.add-worker-form input[type=text]{width:100%;background:var(--bg2);
+  border:1px solid var(--border);color:var(--text1);
+  font-family:var(--font-mono);font-size:.7rem;
+  padding:.35rem .55rem;outline:none;transition:border-color .2s;}
+.add-worker-form input[type=text]:focus{border-color:var(--blue);}
+.add-worker-form input[type=text]::placeholder{color:var(--text3);}
+.added-log{display:flex;flex-direction:column;gap:.25rem;
+  max-height:100px;overflow-y:auto;margin-top:.3rem;}
+.added-entry{font-family:var(--font-mono);font-size:.58rem;color:var(--text2);
+  padding:.22rem .45rem;background:var(--bg2);border-left:2px solid var(--blue);
+  display:flex;justify-content:space-between;align-items:center;gap:.35rem;}
+.rm-btn{background:none;border:none;color:var(--text3);
+  cursor:pointer;font-size:.75rem;padding:0;line-height:1;flex-shrink:0;}
+.rm-btn:hover{color:var(--red);}
+@keyframes flash-new{0%{box-shadow:0 0 0 0 rgba(58,184,245,.9);}
+  70%{box-shadow:0 0 0 12px rgba(58,184,245,0);}100%{box-shadow:none;}}
+.flash-new{animation:flash-new .9s ease;}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--border);padding:.7rem 1.4rem;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:.55rem;
+  letter-spacing:.1em;color:var(--text3);background:var(--bg1);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);}
+
+/* ANIMATIONS */
+.fade-in{animation:fade-in .45s ease;}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.stagger>*{animation:fade-in .35s ease both;}
+.stagger>*:nth-child(1){animation-delay:.04s}.stagger>*:nth-child(2){animation-delay:.08s}
+.stagger>*:nth-child(3){animation-delay:.12s}.stagger>*:nth-child(4){animation-delay:.16s}
+.stagger>*:nth-child(5){animation-delay:.2s}.stagger>*:nth-child(6){animation-delay:.24s}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">PSAS <span>/ Mine Safety Analytics</span></div>
+  <div class="topbar-center">⛏ UNDERGROUND MINING · PREDICTIVE SAFETY · MULTI-ZONE</div>
+  <div class="topbar-status">
+    <div class="status-pill"><div class="status-dot"></div>SYSTEM ONLINE</div>
+    <div class="status-pill" id="worker-count-top">— WORKERS</div>
+    <div class="status-pill" id="shift-top">SHIFT A</div>
+    <div class="clock" id="clock">00:00:00</div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Environment Config</div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">Incident Scenario</div>
+      <select id="scenario-select" onchange="applyScenario()"></select>
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">Primary Incident Zone</div>
+      <select id="zone-select" onchange="applyScenario()">
+        <option value="0">Shaft A</option>
+        <option value="1">Shaft B</option>
+        <option value="2">Tunnel C</option>
+        <option value="3">Surface</option>
+      </select>
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">Workers On-Site &nbsp;<span class="range-val" id="workers-val">60</span></div>
+      <input type="range" id="workers-range" min="10" max="120" value="60"
+             oninput="document.getElementById('workers-val').textContent=this.value;rebuildWorkers()"/>
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">Heatmap Overlay</div>
+      <select id="heatmap-select">
+        <option value="none">Off</option>
+        <option value="risk" selected>Risk Concentration</option>
+        <option value="gas">Methane Spread</option>
+        <option value="o2">O₂ Depletion</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Live Simulation</div>
+    <div class="sim-time-display" id="sim-time-display">T+00</div>
+    <div class="sim-time-label">MINUTES ELAPSED</div>
+    <div style="margin:.4rem 0;">
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="sim-progress" style="width:0%"></div></div>
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">Speed</div>
+      <select id="speed-select">
+        <option value="4000">0.5× Slow</option>
+        <option value="2000" selected>1× Normal</option>
+        <option value="1000">2× Fast</option>
+        <option value="500">4× Demo</option>
+      </select>
+    </div>
+    <div class="sim-btns">
+      <button class="btn primary" id="sim-toggle" onclick="toggleSim()">▶ START SIMULATION</button>
+      <button class="btn" onclick="stepSim(-1)">◀ STEP</button>
+      <button class="btn" onclick="stepSim(1)">STEP ▶</button>
+      <button class="btn danger" onclick="resetSim()">↺ RESET</button>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">ML Model — Feature Importance</div>
+    <div class="feat-list" id="feat-list"></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label" style="color:var(--blue);border-color:var(--blue-dim);">⚡ Add Worker — Live</div>
+    <div class="add-worker-form">
+      <div class="ctrl-row">
+        <div class="ctrl-label">Worker Name / ID</div>
+        <input type="text" id="aw-name" placeholder="e.g. Judge Mwansa"
+               onkeydown="if(event.key==='Enter')addManualWorker()"/>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label">Zone</div>
+        <select id="aw-zone" style="border-color:var(--blue-dim);">
+          <option>Shaft A</option><option selected>Shaft B</option>
+          <option>Tunnel C</option><option>Surface</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label">Fatigue &nbsp;<span id="aw-fatigue-val" style="color:var(--red);font-weight:700">0.92</span></div>
+        <input type="range" id="aw-fatigue" min="0" max="1" step="0.01" value="0.92"
+               style="accent-color:var(--blue)"
+               oninput="document.getElementById('aw-fatigue-val').textContent=parseFloat(this.value).toFixed(2);
+                 document.getElementById('aw-fatigue-val').style.color=this.value>0.7?'var(--red)':this.value>0.4?'var(--amber)':'var(--green)'"/>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label">Hours Underground &nbsp;<span id="aw-hours-val" style="color:var(--amber);font-weight:700">13</span>h</div>
+        <input type="range" id="aw-hours" min="1" max="16" step="0.5" value="13"
+               style="accent-color:var(--blue)"
+               oninput="document.getElementById('aw-hours-val').textContent=parseFloat(this.value).toFixed(1)"/>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label">Depth from Exit &nbsp;<span id="aw-depth-val" style="color:var(--amber);font-weight:700">82</span>m</div>
+        <input type="range" id="aw-depth" min="5" max="100" step="1" value="82"
+               style="accent-color:var(--blue)"
+               oninput="document.getElementById('aw-depth-val').textContent=this.value"/>
+      </div>
+      <button class="btn blue" onclick="addManualWorker()">＋ DEPLOY WORKER</button>
+    </div>
+    <div class="added-log" id="added-log"></div>
+  </div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="alert-banner safe" id="alert-banner">
+    <span id="alert-text">✅ ALL SYSTEMS NOMINAL — NORMAL OPERATIONS</span>
+    <span id="alert-time" style="font-size:.58rem;color:var(--text3)">T+0 MIN</span>
+  </div>
+
+  <div class="kpi-grid stagger" id="kpi-grid">
+    <div class="kpi-card" id="kc-workers"><div class="kpi-label">Workers On-Site</div><div class="kpi-value" id="kpi-workers">60</div></div>
+    <div class="kpi-card" id="kc-gas"><div class="kpi-label">Methane %</div><div class="kpi-value" id="kpi-gas">1.20%</div><div class="kpi-delta" id="kpi-gas-delta">baseline</div></div>
+    <div class="kpi-card" id="kc-o2"><div class="kpi-label">Oxygen %</div><div class="kpi-value" id="kpi-o2">20.5%</div><div class="kpi-delta" id="kpi-o2-delta">baseline</div></div>
+    <div class="kpi-card" id="kc-hazard"><div class="kpi-label">Collapse Risk</div><div class="kpi-value" id="kpi-hazard">15%</div><div class="kpi-delta" id="kpi-hazard-delta">baseline</div></div>
+    <div class="kpi-card" id="kc-lives"><div class="kpi-label">Lives At Risk</div><div class="kpi-value danger" id="kpi-lives">0</div></div>
+    <div class="kpi-card" id="kc-survival"><div class="kpi-label">Avg Survival</div><div class="kpi-value safe" id="kpi-survival">—</div></div>
+  </div>
+
+  <div class="ticker-wrap" id="ticker">
+    <span class="ticker-time">T+00</span>System initialised. All sensors nominal. Awaiting incident trigger.
+  </div>
+
+  <!-- MAP + SENSORS -->
+  <div class="row-6040">
+    <div class="panel">
+      <div class="section-head">
+        <div class="section-title">WORKER TRACKING MAP</div>
+        <div class="section-sub" id="map-env-label">MULTI-ZONE UNDERGROUND</div>
+        <div class="section-badge">● LIVE</div>
+      </div>
+      <canvas id="map-canvas"></canvas>
+      <div class="map-legend">
+        <span class="map-legend-label">KEY</span>
+        <span class="map-legend-item"><span style="color:#e84040">●</span> Critical &gt;85%</span>
+        <span class="map-legend-item"><span style="color:#f5a623">●</span> High &gt;70%</span>
+        <span class="map-legend-item"><span style="color:#27c97a">●</span> Safe</span>
+        <span class="map-legend-item"><span style="color:#3ab8f5">◆</span> Live Added</span>
+        <span class="map-legend-item"><span style="color:#e84040">⊙ T1</span> Fast extraction</span>
+        <span class="map-legend-item"><span style="color:#3ab8f5">⊙ T2</span> Guided evacuation</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="section-head">
+        <div class="section-title">INCIDENT ZONE SENSORS</div>
+        <div class="section-sub">LIVE READINGS</div>
+      </div>
+      <div class="sensor-grid" id="sensor-grid"></div>
+    </div>
+  </div>
+
+  <!-- ZONE COMPARISON -->
+  <div class="panel">
+    <div class="section-head">
+      <div class="section-title">ZONE COMPARISON</div>
+      <div class="section-sub">ALL ZONES · INDEPENDENT READINGS</div>
+    </div>
+    <div class="zone-grid" id="zone-grid"></div>
+  </div>
+
+  <!-- FORECAST -->
+  <div class="panel">
+    <div class="section-head">
+      <div class="section-title">AI PREDICTIVE FORECAST</div>
+      <div class="section-sub">NEXT 30 MINUTES — ML EXTRAPOLATION</div>
+    </div>
+    <div id="forecast-chart" style="height:230px;"></div>
+    <div id="forecast-narrative" style="margin-top:.5rem;font-family:var(--font-mono);font-size:.65rem;color:var(--text2);letter-spacing:.05em;line-height:1.6;"></div>
+  </div>
+
+  <!-- RESCUE COMMAND CENTRE -->
+  <div class="panel">
+    <div class="section-head">
+      <div class="section-title">RESCUE COMMAND CENTRE</div>
+      <div class="section-sub">ASSIGN WORKERS TO TEAMS · TRACK DEPLOYMENT</div>
+      <button class="export-btn" onclick="exportReport()" style="margin-left:auto;">⬇ EXPORT REPORT</button>
+    </div>
+    <div id="team-stats" style="margin-bottom:.8rem;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:.56rem;letter-spacing:.15em;
+          color:var(--text3);text-transform:uppercase;margin-bottom:.5rem;">
+          At-Risk Workers — press T1 or T2 to assign
+        </div>
+        <div id="worker-cards"></div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:.56rem;letter-spacing:.15em;
+          color:var(--text3);text-transform:uppercase;margin-bottom:.5rem;">
+          Deployed Teams — live roster
+        </div>
+        <div class="team-panel" id="team-panel"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI COMMANDS -->
+  <div class="panel">
+    <div class="section-head">
+      <div class="section-title">AI COMMANDS</div>
+      <div class="section-sub">AUTO RESPONSE</div>
+    </div>
+    <div class="cmd-list" id="cmd-list"></div>
+  </div>
+
+  <!-- INCIDENT TIMELINE -->
+  <div class="panel">
+    <div class="section-head">
+      <div class="section-title">INCIDENT TIMELINE</div>
+      <div class="section-sub">CHRONOLOGICAL EVENT LOG</div>
+    </div>
+    <div class="timeline-wrap" id="timeline-wrap">
+      <div class="timeline-entry info">
+        <span class="tl-time">T+00</span>
+        <span class="tl-msg">System online. All zones nominal. Awaiting simulation start.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHIFT TRACKER -->
+  <div class="panel">
+    <div class="section-head">
+      <div class="section-title">SHIFT ROTATION</div>
+      <div class="section-sub">WORKFORCE CYCLE TRACKER</div>
+    </div>
+    <div class="shift-row" id="shift-row"></div>
+  </div>
+
+  <!-- AI CHAT -->
+  <div class="section-head">
+    <div class="section-title">AI SAFETY ANALYST</div>
+    <div class="section-sub">POWERED BY CLAUDE — ASK ANYTHING</div>
+  </div>
+  <div class="chat-panel">
+    <div class="chat-head">
+      <div class="ai-dot"></div>CLAUDE SAFETY ANALYST
+      <span style="font-family:var(--font-mono);font-size:.58rem;color:var(--text3);margin-left:auto;">claude-sonnet-4-20250514</span>
+    </div>
+    <div class="api-key-row">
+      <div class="api-key-label">API KEY</div>
+      <input type="password" class="api-key-input" id="api-key-input" placeholder="Optional — works offline without key"/>
+      <button class="api-key-btn" onclick="saveApiKey()">SAVE</button>
+      <span id="mode-badge" style="font-family:var(--font-mono);font-size:.52rem;letter-spacing:.08em;padding:.12rem .38rem;border:1px solid var(--green);color:var(--green);background:var(--green-dim);white-space:nowrap;flex-shrink:0;">⚡ OFFLINE</span>
+    </div>
+    <div class="quick-prompts" id="quick-prompts"></div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg">
+        <div class="msg-label">PSAS AI ANALYST</div>
+        <div class="msg-bubble">Safety Analyst online. I have full situational awareness across all four zones — sensor readings, worker positions, ML risk scores, and team deployments. Ask me anything.</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chat-input"
+             placeholder="e.g. Which zone is most dangerous right now?"
+             onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" id="chat-send-btn" onclick="sendChat()">SEND ▶</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>PSAS · AI-POWERED MINE SAFETY ANALYTICS · ICT COMPETITION DEMO</span>
+    <span>GRADIENT BOOSTED REGRESSOR · MULTI-ZONE SIMULATION · CLAUDE API</span>
+  </div>
+
+</main>
+</div>
+
+<script>
+/* ═══ STATE ══════════════════════════════════════════════════ */
+let simTime=0, simRunning=false, simTimer=null;
+let workers=[], apiKey='', zoneReadings={};
+let manualIdCounter=1000;
+let tickerLocked=false, tickerLockTimer=null;
+let timelineEvents=[];
+let shiftCycle=0;
+let lastCascadeTime=-10;
+let lastShiftTime=0;
+let teamAssignments={};
+
+/* ═══ ZONES ══════════════════════════════════════════════════ */
+const ZONES=[
+  {id:0,name:'Shaft A', col:'#3ab8f5',gasMult:1.0,o2Mult:1.0, hazMult:1.0, tmpMult:1.0,
+   tunnelX1:.1,tunnelY1:.3,tunnelX2:.9,tunnelY2:.3,
+   workerBand:{xMin:.12,xMax:.88,yMin:.24,yMax:.36}},
+  {id:1,name:'Shaft B', col:'#f5a623',gasMult:1.3,o2Mult:0.97,hazMult:1.15,tmpMult:1.05,
+   tunnelX1:.1,tunnelY1:.6,tunnelX2:.9,tunnelY2:.6,
+   workerBand:{xMin:.12,xMax:.88,yMin:.54,yMax:.66}},
+  {id:2,name:'Tunnel C',col:'#a78bfa',gasMult:0.8,o2Mult:1.02,hazMult:1.4, tmpMult:0.98,
+   tunnelX1:.3,tunnelY1:.1,tunnelX2:.3,tunnelY2:.9,
+   workerBand:{xMin:.24,xMax:.36,yMin:.12,yMax:.88}},
+  {id:3,name:'Surface', col:'#27c97a',gasMult:0.3,o2Mult:1.0, hazMult:0.5, tmpMult:1.2,
+   tunnelX1:.65,tunnelY1:.05,tunnelX2:.65,tunnelY2:.2,
+   workerBand:{xMin:.6,xMax:.9,yMin:.03,yMax:.18}},
+];
+const EXIT_POINTS=[{x:.05,y:.3},{x:.05,y:.6},{x:.95,y:.3},{x:.95,y:.6}];
+
+/* ═══ CONFIG ═════════════════════════════════════════════════ */
+const CFG={
+  scenarios:[
+    {name:'Normal Operations',
+      gas:1.2,o2:20.5,hazard:15,temp:28,
+      gasRate:0.002,o2Rate:0.001,hazardRate:0.05,tempRate:0.01,
+      /* FIX 3 — scenario-aware timeline messages */
+      tlMsgs:{
+        2:'Routine sensor sweep complete. All baseline readings confirmed.',
+        5:'Minor ventilation fluctuation detected. Auto-correction applied.',
+        8:'Scheduled equipment check in Shaft A. Operations continue normally.',
+      }
+    },
+    {name:'Methane Gas Leak',
+      gas:2.8,o2:19.8,hazard:20,temp:30,
+      gasRate:0.12,o2Rate:-0.06,hazardRate:0.30,tempRate:0.05,
+      tlMsgs:{
+        2:'Sensor sweep complete. Elevated methane detected in incident zone.',
+        5:'Anomalous methane reading rising. Auto-ventilation activated.',
+        8:'Gas concentration rising. Rescue teams placed on standby.',
+        12:'⚠ Methane approaching LEL threshold. Initiating partial evacuation.',
+        16:'🚨 Multiple workers at critical risk. Emergency Protocol Level 2.',
+        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full mine evacuation ordered.',
+        25:'Rescue Team 1 deployed. Workers being extracted from incident zone.',
+      }
+    },
+    {name:'Tunnel Collapse Risk',
+      gas:1.5,o2:20.0,hazard:45,temp:29,
+      gasRate:0.03,o2Rate:-0.02,hazardRate:0.80,tempRate:0.04,
+      tlMsgs:{
+        2:'Sensor sweep complete. Elevated seismic activity detected.',
+        5:'Structural sensor alert — micro-fractures detected in Tunnel C.',
+        8:'Collapse risk rising. Restricting heavy machinery in affected zone.',
+        12:'⚠ Collapse risk critical. Structural inspection team deployed.',
+        16:'🚨 Imminent collapse risk. Emergency evacuation ordered.',
+        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full evacuation ordered.',
+        25:'Rescue teams deployed. Workers being guided to surface.',
+      }
+    },
+    {name:'Extreme Heat',
+      gas:1.8,o2:19.8,hazard:20,temp:38,
+      gasRate:0.04,o2Rate:-0.03,hazardRate:0.20,tempRate:0.14,
+      tlMsgs:{
+        2:'Sensor sweep complete. Temperature above normal baseline.',
+        5:'Heat stress threshold approaching. Mandatory water breaks enforced.',
+        8:'Multiple workers reporting heat exhaustion symptoms.',
+        12:'⚠ Extreme heat — emergency cooling systems activated.',
+        16:'🚨 Heat-related incapacitations reported. Medical team deployed.',
+        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Thermal emergency declared.',
+        25:'Workers being extracted. Cooling systems at maximum capacity.',
+      }
+    },
+    {name:'Low Oxygen Emergency',
+      gas:2.0,o2:18.5,hazard:25,temp:30,
+      gasRate:0.05,o2Rate:-0.12,hazardRate:0.25,tempRate:0.05,
+      tlMsgs:{
+        2:'Sensor sweep complete. O₂ levels below normal in incident zone.',
+        5:'Oxygen depletion spreading. Emergency O₂ supply lines activated.',
+        8:'Workers reporting dizziness. SCSR deployment initiated.',
+        12:'⚠ O₂ critically low. All workers require breathing apparatus.',
+        16:'🚨 Multiple workers incapacitated. Emergency Protocol Level 2.',
+        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full evacuation ordered.',
+        25:'Rescue teams with SCSRs deployed. Workers being extracted.',
+      }
+    },
+  ],
+  sensors:[
+    {name:'Methane',key:'gas',  unit:'%', max:7,  danger:4, warn:2, inverse:false},
+    {name:'Oxygen', key:'o2',   unit:'%', max:21, danger:16,warn:18,inverse:true},
+    {name:'Collapse',key:'hazard',unit:'%',max:100,danger:70,warn:40,inverse:false},
+    {name:'Temp',   key:'temp', unit:'°C',max:55, danger:40,warn:35,inverse:false},
+  ],
+  features:[
+    {name:'methane_%',        imp:.31},
+    {name:'oxygen_%',         imp:.24},
+    {name:'collapse_risk_%',  imp:.18},
+    {name:'fatigue_score',    imp:.13},
+    {name:'hours_underground',imp:.08},
+    {name:'depth_from_exit_m',imp:.06},
+  ],
+};
+
+const SHIFTS=[
+  {name:'Shift A',workers:['Mwansa K.','Banda C.','Tembo P.','Lungu M.','Phiri J.']},
+  {name:'Shift B',workers:['Zulu B.','Nkosi T.','Daka R.','Mutale S.','Sata F.']},
+  {name:'Shift C',workers:['Ngosa E.','Bwalya A.','Mulenga D.','Kasonde W.','Chitalu N.']},
+];
+
+/* ═══ HELPERS ════════════════════════════════════════════════ */
+function rand(a,b){return a+Math.random()*(b-a);}
+function mulberry32(seed){
+  return function(){
+    seed|=0;seed=seed+0x6D2B79F5|0;
+    let t=Math.imul(seed^seed>>>15,1|seed);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+function currentScenario(){
+  const idx=+document.getElementById('scenario-select').value;
+  return CFG.scenarios[isFinite(idx)?idx:0]||CFG.scenarios[0];
+}
+function incidentZoneIdx(){
+  const idx=+document.getElementById('zone-select').value;
+  return isFinite(idx)?idx:0;
+}
+function incidentZone(){return ZONES[incidentZoneIdx()];}
+
+/* ═══ READINGS ═══════════════════════════════════════════════ */
+function calcZoneReadings(t){
+  const sc=currentScenario();
+  const incIdx=incidentZoneIdx();
+  const tf=t/30;
+  const noise=t>0;
+  const readings={};
+  const gRate=sc.gasRate, o2R=sc.o2Rate, hRate=sc.hazardRate, tRate=sc.tempRate;
+
+  ZONES.forEach((z,i)=>{
+    const isIncident=(i===incIdx);
+    const rate=isIncident?1.0:0.15;
+    const gasDelta  =gRate*t*rate+(noise?rand(-.04,.04):0);
+    const o2Delta   =o2R  *t*rate+(noise?rand(-.015,.015):0);
+    const hazDelta  =hRate*t*rate+(noise?rand(-.2,.2):0);
+    const tempDelta =tRate*t*rate+(noise?rand(-.08,.08):0);
+    const cascadeBoost=isIncident?{gas:0,o2:0,haz:0}:getCascadeBoost(i,incIdx,t);
+    const gas   =sc.gas   +gasDelta  *z.gasMult+cascadeBoost.gas;
+    const o2    =sc.o2    +o2Delta   *z.o2Mult -cascadeBoost.o2;
+    const hazard=sc.hazard+hazDelta  *z.hazMult+cascadeBoost.haz;
+    const temp  =sc.temp  +tempDelta *z.tmpMult;
+    readings[i]={
+      gas:   isFinite(gas)   ?Math.min(Math.max(gas,   0), 7)  :sc.gas,
+      o2:    isFinite(o2)    ?Math.min(Math.max(o2,   12),21)  :sc.o2,
+      hazard:isFinite(hazard)?Math.min(Math.max(hazard, 0),100):sc.hazard,
+      temp:  isFinite(temp)  ?Math.min(Math.max(temp,  0), 60) :sc.temp,
+      tf,
+    };
+  });
+  return readings;
+}
+
+/* ═══ CASCADE ════════════════════════════════════════════════ */
+function getCascadeBoost(zoneIdx,incIdx,t){
+  const sc=currentScenario();
+  const adjacency={0:[1,2],1:[0,2],2:[0,1,3],3:[2]};
+  const isAdjacent=adjacency[incIdx]?.includes(zoneIdx);
+  if(!isAdjacent||t<5)return{gas:0,o2:0,haz:0};
+  const incGasNow=sc.gas+sc.gasRate*t;
+  if(incGasNow<3)return{gas:0,o2:0,haz:0};
+  const cascadeT=Math.max(0,t-5);
+  const strength=Math.min(cascadeT/20,1)*0.4;
+  return{
+    gas: sc.gasRate   *cascadeT*strength*ZONES[zoneIdx].gasMult,
+    /* FIX 4 — was using CFG.gasRate (legacy) in original cascade calc,
+       now correctly uses sc.gasRate throughout */
+    o2:  sc.o2Rate    *cascadeT*strength*ZONES[zoneIdx].o2Mult*-1,
+    haz: sc.hazardRate*cascadeT*strength*0.3*ZONES[zoneIdx].hazMult,
+  };
+}
+
+/* ═══ ML RISK ════════════════════════════════════════════════ */
+function mlRisk(w,r){
+  const o2d=Math.min((21-r.o2)/9,1);
+  const heat=Math.max((r.temp-28)/32,0);
+  const meth=Math.min(r.gas/5,1);
+  const inter=Math.min(meth*o2d/2,.15);
+  const base=meth*.28+o2d*.24+(r.hazard/100)*.18+w.fatigue*.14+(w.hours/16)*.06+(w.depth/100)*.05+heat*.05;
+  return Math.min(base*(1+.45*r.tf)+inter,1);
+}
+
+/* ═══ WORKER GENERATION ══════════════════════════════════════ */
+function rebuildWorkers(){
+  const n=+document.getElementById('workers-range').value;
+  const manual=workers.filter(w=>w.manual);
+  workers=[];
+  const seed=mulberry32(42);
+  for(let i=0;i<n;i++){
+    const zi=Math.floor(seed()*ZONES.length);
+    const z=ZONES[zi];
+    const b=z.workerBand;
+    /* FIX 5 — positions clamped at generation (same as rebuildWorkers already did,
+       now also applied consistently) */
+    const bx=Math.min(Math.max(b.xMin+seed()*(b.xMax-b.xMin),0),1);
+    const by=Math.min(Math.max(b.yMin+seed()*(b.yMax-b.yMin),0),1);
+    workers.push({
+      id:i+1,zone:z.name,zoneIdx:zi,x:bx,y:by,
+      tx:null,ty:null,
+      fatigue:seed(),hours:4+seed()*12,depth:5+seed()*90,
+      risk:0,survival:0,manual:false,evacuating:false,
+    });
+  }
+  workers=workers.concat(manual);
+  updateAll();
+}
+
+/* ═══ WORKER MOVEMENT ════════════════════════════════════════ */
+function updateWorkerPositions(){
+  workers.forEach(w=>{
+    const team=teamAssignments[w.id];
+    if(team===1){
+      w.evacuating=true;
+    } else if(team===2){
+      w.evacuating=w.risk>=0.5;
+    } else {
+      if(w.risk<0.65){w.evacuating=false;return;}
+      w.evacuating=true;
+    }
+    if(!w.evacuating)return;
+    let minDist=Infinity,nearestExit=EXIT_POINTS[0];
+    EXIT_POINTS.forEach(ep=>{
+      const d=Math.hypot(ep.x-w.x,ep.y-w.y);
+      if(d<minDist){minDist=d;nearestExit=ep;}
+    });
+    /* FIX 6 — t1Speed property was set but never read; removed it.
+       Speed is determined here directly from team assignment. */
+    const speed=team===1?0.010:team===2?0.003:0.004*(0.5+w.risk);
+    const dx=nearestExit.x-w.x,dy=nearestExit.y-w.y;
+    const dist=Math.hypot(dx,dy);
+    if(dist>0.02){
+      w.x=Math.min(Math.max(w.x+dx/dist*speed,0),1);
+      w.y=Math.min(Math.max(w.y+dy/dist*speed,0),1);
+    }
+    w.depth=Math.max(0,w.depth-speed*20);
+  });
+}
+
+/* ═══ SHIFT ROTATION ═════════════════════════════════════════ */
+function checkShiftRotation(){
+  if(simTime>0&&simTime%10===0&&simTime!==lastShiftTime){
+    lastShiftTime=simTime;
+    shiftCycle=(shiftCycle+1)%3;
+    const outgoing=workers.filter(w=>!w.manual);
+    const replaceCount=Math.floor(outgoing.length*0.20);
+    const toReplace=outgoing.sort((a,b)=>b.hours-a.hours).slice(0,replaceCount);
+    toReplace.forEach(w=>{w.fatigue=Math.random()*0.3;w.hours=Math.random()*2;});
+    addTimelineEvent('info',`Shift rotation — ${SHIFTS[shiftCycle].name} relieving ${replaceCount} workers. Fresh personnel fatigue reset.`);
+    renderShiftTracker();
+  }
+}
+
+/* ═══ CASCADE DETECTION ══════════════════════════════════════ */
+function checkCascadeEvents(){
+  const incR=zoneReadings[incidentZoneIdx()];
+  if(!incR)return;
+  if(incR.gas>3&&simTime-lastCascadeTime>8){
+    lastCascadeTime=simTime;
+    const adjNames=ZONES.filter((_,i)=>i!==incidentZoneIdx()&&i!==3)
+      .slice(0,2).map(z=>z.name).join(', ');
+    addTimelineEvent('warning',`⚠ Cascade detected: methane spreading from ${incidentZone().name} to ${adjNames} via ventilation network.`);
+  }
+}
+
+/* ═══ TIMELINE ═══════════════════════════════════════════════ */
+function addTimelineEvent(type,msg){
+  timelineEvents.push({t:simTime,type,msg});
+  renderTimeline();
+}
+
+/* FIX 3 — scenario-aware auto timeline messages.
+   Each scenario carries its own tlMsgs keyed by sim minute.
+   No more hardcoded methane messages during a collapse scenario. */
+let lastAutoTlTime=-1;
+function checkAutoTimeline(){
+  const sc=currentScenario();
+  const msgs=sc.tlMsgs||{};
+  Object.entries(msgs).forEach(([t,msg])=>{
+    const ti=+t;
+    if(simTime>=ti&&ti>lastAutoTlTime){
+      const type=msg.startsWith('🚨')?'critical':msg.startsWith('⚠')?'warning':'info';
+      addTimelineEvent(type,msg);
+      lastAutoTlTime=Math.max(lastAutoTlTime,ti);
+    }
+  });
+}
+
+/* ═══ SCENARIOS ══════════════════════════════════════════════ */
+function populateScenarios(){
+  document.getElementById('scenario-select').innerHTML=
+    CFG.scenarios.map((s,i)=>`<option value="${i}">${s.name}</option>`).join('');
+}
+function applyScenario(){renderQuickPrompts();resetSim();}
+
+/* ═══ MANUAL WORKER ══════════════════════════════════════════ */
+function addManualWorker(){
+  const name=document.getElementById('aw-name').value.trim()||`Field Worker ${manualIdCounter}`;
+  const zone=document.getElementById('aw-zone').value;
+  const fatigue=parseFloat(document.getElementById('aw-fatigue').value);
+  const hours=parseFloat(document.getElementById('aw-hours').value);
+  const depth=parseFloat(document.getElementById('aw-depth').value);
+  const zi=ZONES.findIndex(z=>z.name===zone);
+  const z=ZONES[zi>=0?zi:0];
+  const b=z.workerBand;
+  /* FIX 5 — manual worker positions now clamped same as generated workers */
+  const w={
+    id:manualIdCounter++,name,zone,zoneIdx:zi>=0?zi:0,
+    x:Math.min(Math.max(b.xMin+Math.random()*(b.xMax-b.xMin),0),1),
+    y:Math.min(Math.max(b.yMin+Math.random()*(b.yMax-b.yMin),0),1),
+    tx:null,ty:null,
+    fatigue,hours,depth,risk:0,survival:0,manual:true,evacuating:false,
+  };
+  const r=zoneReadings[w.zoneIdx]||zoneReadings[0]||{gas:1.2,o2:20.5,hazard:15,temp:28,tf:0};
+  w.risk=mlRisk(w,r);
+  w.survival=Math.max(0,1-Math.pow(w.risk,1.5));
+  workers.push(w);
+  setTimeout(()=>{
+    const el=document.getElementById('worker-cards');
+    if(el){el.classList.add('flash-new');setTimeout(()=>el.classList.remove('flash-new'),900);}
+  },80);
+  const rp=(w.risk*100).toFixed(0);
+  const rc=w.risk>0.7?'var(--red)':w.risk>0.4?'var(--amber)':'var(--green)';
+  setTicker(
+    `<span class="ticker-time" style="color:var(--blue)">⚡ NEW</span>`+
+    `Worker <strong style="color:var(--blue)">${name}</strong> → ${zone}. Risk: <strong style="color:${rc}">${rp}%</strong>`+
+    (w.risk>0.7?` — <strong style="color:var(--red)">FLAGGED FOR RESCUE</strong>`:' — monitoring.'),
+    'var(--blue)',4000);
+  addTimelineEvent('info',`⚡ ${name} added to ${zone} (Fatigue ${(fatigue*100).toFixed(0)}%, ${hours.toFixed(0)}h underground).`);
+  document.getElementById('aw-name').value='';
+  updateAddedLog();
+  updateAll();
+}
+function removeManualWorker(id){
+  workers=workers.filter(w=>w.id!==id);
+  updateAddedLog();updateAll();
+}
+function updateAddedLog(){
+  const manual=workers.filter(w=>w.manual);
+  const log=document.getElementById('added-log');
+  if(!manual.length){log.innerHTML='';return;}
+  log.innerHTML=manual.map(w=>{
+    const rp=(w.risk*100).toFixed(0);
+    const col=w.risk>0.7?'var(--red)':w.risk>0.4?'var(--amber)':'var(--green)';
+    return`<div class="added-entry">
+      <span>⚡ ${w.name} · ${w.zone}</span>
+      <span style="color:${col};font-weight:700">${rp}%</span>
+      <button class="rm-btn" onclick="removeManualWorker(${w.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ SIMULATION CONTROL ═════════════════════════════════════ */
+function toggleSim(){
+  simRunning=!simRunning;
+  const btn=document.getElementById('sim-toggle');
+  if(simRunning){
+    btn.textContent='⏸ PAUSE';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';
+    if(simTime===0)addTimelineEvent('info','Simulation started. Incident clock running.');
+    tickSim();
+  }else{
+    btn.textContent='▶ RESUME';btn.style.borderColor='';btn.style.color='';
+    clearTimeout(simTimer);
+  }
+}
+function tickSim(){
+  if(!simRunning||simTime>=30){simRunning=false;return;}
+  simTime++;
+  checkShiftRotation();
+  checkCascadeEvents();
+  checkAutoTimeline();
+  updateWorkerPositions();
+  updateAll();
+  simTimer=setTimeout(tickSim,+document.getElementById('speed-select').value);
+}
+function stepSim(dir){
+  simTime=Math.max(0,Math.min(30,simTime+dir));
+  updateWorkerPositions();
+  updateAll();
+}
+function resetSim(){
+  clearTimeout(simTimer);simRunning=false;simTime=0;
+  shiftCycle=0;lastCascadeTime=-10;lastShiftTime=0;
+  lastAutoTlTime=-1;timelineEvents=[];
+  teamAssignments={};
+  const btn=document.getElementById('sim-toggle');
+  btn.textContent='▶ START SIMULATION';btn.style.borderColor='';btn.style.color='';
+  timelineEvents=[{t:0,type:'info',msg:'System reset. All sensors nominal.'}];
+  rebuildWorkers();
+}
+
+/* ═══ MASTER UPDATE ══════════════════════════════════════════ */
+function updateAll(){
+  zoneReadings=calcZoneReadings(simTime);
+  const incR=zoneReadings[incidentZoneIdx()];
+  workers.forEach(w=>{
+    const r=zoneReadings[w.zoneIdx]||incR;
+    w.risk=mlRisk(w,r);
+    w.survival=Math.max(0,1-Math.pow(w.risk,1.5));
+  });
+  const lives   =workers.filter(w=>w.risk>0.7).length;
+  const critical=workers.filter(w=>w.risk>0.85).length;
+  const avgSurv =workers.length>0
+    ?workers.reduce((s,w)=>s+w.survival,0)/workers.length
+    :1;
+
+  renderSimTime();
+  renderAlertBanner(lives,critical);
+  renderKPIs(lives,avgSurv,incR);
+  renderAutoTicker(incR);
+  renderSensors(incR);
+  renderZoneComparison();
+  renderMap();
+  renderWorkerCards();
+  /* FIX 1 — renderTeamTracker was called twice; now called exactly once */
+  renderTeamTracker();
+  renderCommands(lives,critical,incR);
+  /* FIX 2 — renderForecast now caches incidentZoneIdx to avoid repeated
+     lookups inside the per-minute forecast loop */
+  renderForecast(incR);
+  renderTimeline();
+  renderShiftTracker();
+  updateWorkerCountTop();
+  updateAddedLog();
+}
+
+/* ═══ RENDER: SIM TIME ═══════════════════════════════════════ */
+function renderSimTime(){
+  document.getElementById('sim-time-display').textContent=`T+${String(simTime).padStart(2,'0')}`;
+  document.getElementById('sim-progress').style.width=`${simTime/30*100}%`;
+}
+
+/* ═══ RENDER: ALERT BANNER ═══════════════════════════════════ */
+function renderAlertBanner(lives,critical){
+  const banner=document.getElementById('alert-banner');
+  const txt=document.getElementById('alert-text');
+  document.getElementById('alert-time').textContent=`T+${simTime} MIN`;
+  banner.className='alert-banner';
+  if(critical>0){
+    banner.classList.add('critical');
+    txt.textContent=`🚨 CRITICAL — ${critical} WORKER${critical>1?'S':''} IN IMMEDIATE DANGER`;
+  }else if(lives>0){
+    txt.textContent=`⚠️ CAUTION — ${lives} WORKER${lives>1?'S':''} AT ELEVATED RISK`;
+  }else{
+    banner.classList.add('safe');
+    txt.textContent='✅ ALL SYSTEMS NOMINAL — NORMAL OPERATIONS';
+  }
+}
+
+/* ═══ RENDER: KPIs ═══════════════════════════════════════════ */
+function renderKPIs(lives,avgSurv,r){
+  const sc=currentScenario();
+  const n=+document.getElementById('workers-range').value+workers.filter(w=>w.manual).length;
+  [{id:'kc-workers',cls:''},
+   {id:'kc-gas',    cls:r.gas>4?'danger':r.gas>2?'warn':''},
+   {id:'kc-o2',     cls:r.o2<16?'danger':r.o2<18.5?'warn':'safe'},
+   {id:'kc-hazard', cls:r.hazard>70?'danger':r.hazard>40?'warn':''},
+   {id:'kc-lives',  cls:lives>5?'danger':lives>0?'warn':'safe'},
+   {id:'kc-survival',cls:avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe'},
+  ].forEach(k=>{
+    const el=document.getElementById(k.id);
+    if(el)el.className='kpi-card'+(k.cls?' '+k.cls:'');
+  });
+  setKPI('kpi-workers',n,'','');
+  setKPI('kpi-gas',    r.gas.toFixed(2)+'%',  r.gas>4?'danger':r.gas>2?'warn':'',  simTime>0?`+${(r.gas-sc.gas).toFixed(2)} from base`:'baseline');
+  setKPI('kpi-o2',     r.o2.toFixed(1)+'%',   r.o2<16?'danger':r.o2<18.5?'warn':'safe', simTime>0?`${(r.o2-sc.o2).toFixed(1)} from base`:'baseline');
+  setKPI('kpi-hazard', Math.round(r.hazard)+'%',r.hazard>70?'danger':r.hazard>40?'warn':'',simTime>0?`+${(r.hazard-sc.hazard).toFixed(0)} from base`:'baseline');
+  setKPI('kpi-lives',  lives, lives>5?'danger':lives>0?'warn':'safe','');
+  setKPI('kpi-survival',workers.length>0?(avgSurv*100).toFixed(0)+'%':'—',avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe','');
+}
+function setKPI(id,val,cls,delta){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const safe=v=>(v===null||v===undefined||String(v).includes('NaN')||String(v).includes('Infinity'))?'—':v;
+  el.textContent=safe(val);
+  el.className='kpi-value'+(cls?' '+cls:'');
+  const d=el.parentElement.querySelector('.kpi-delta');
+  if(d){
+    const sd=safe(delta);
+    d.textContent=sd;
+    d.className='kpi-delta'+(sd.startsWith('+')?' up':sd.startsWith('-')?' down':'');
+  }
+}
+
+/* ═══ RENDER: TICKER ═════════════════════════════════════════ */
+let _tickerBorderColor='var(--accent)';
+function setTicker(html,borderColor,lockMs){
+  const el=document.getElementById('ticker');
+  el.style.borderColor=borderColor||'var(--accent)';
+  el.innerHTML=html;
+  if(lockMs){
+    tickerLocked=true;
+    clearTimeout(tickerLockTimer);
+    tickerLockTimer=setTimeout(()=>{tickerLocked=false;el.style.borderColor='';},lockMs);
+  }
+}
+const TICKER_MSGS=[
+  'System online. All zones nominal. Awaiting incident.',
+  'Anomaly detected in incident zone — early sensor reading.',
+  'Conditions worsening. Ventilation at full capacity.',
+  'Hazard levels rising. Partial evacuation initiated.',
+  'Structural and atmospheric sensors on high alert.',
+  'Hazard spreading. Rescue teams on standby.',
+  'Multiple workers reporting symptoms. Medical deployed.',
+  'Critical: hazard levels exceeding safe threshold.',
+  '🚨 EMERGENCY LEVEL 3 — FULL EVACUATION IN PROGRESS.',
+];
+function renderAutoTicker(r){
+  if(tickerLocked)return;
+  const idx=Math.min(Math.floor(simTime/4),TICKER_MSGS.length-1);
+  const col=simTime>16?'var(--red)':'var(--accent)';
+  setTicker(`<span class="ticker-time">T+${String(simTime).padStart(2,'0')}</span>${TICKER_MSGS[idx]}`,col,0);
+  tickerLocked=false;
+}
+
+/* ═══ RENDER: SENSORS ════════════════════════════════════════ */
+function renderSensors(r){
+  const sc=currentScenario();
+  const safe={
+    gas:   isFinite(r?.gas)   ?r.gas   :sc.gas,
+    o2:    isFinite(r?.o2)    ?r.o2    :sc.o2,
+    hazard:isFinite(r?.hazard)?r.hazard:sc.hazard,
+    temp:  isFinite(r?.temp)  ?r.temp  :sc.temp,
+  };
+  document.getElementById('sensor-grid').innerHTML=CFG.sensors.map(s=>{
+    const val=safe[s.key];
+    const pct=Math.min((val/s.max)*100,100);
+    const bad=s.inverse?val<s.danger:val>s.danger;
+    const warn=s.inverse?val<s.warn:val>s.warn;
+    const col=bad?'var(--red)':warn?'var(--amber)':'var(--green)';
+    const cardCls=bad?'danger':warn?'warn':'';
+    return`<div class="sensor-card ${cardCls}">
+      <div class="sensor-name">${s.name}</div>
+      <div class="sensor-val">${val<10?val.toFixed(2):Math.round(val)}<span class="sensor-unit"> ${s.unit}</span></div>
+      <div class="sensor-bar"><div class="sensor-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="sensor-status" style="background:${col};box-shadow:0 0 6px ${col}"></div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ RENDER: ZONE COMPARISON ════════════════════════════════ */
+function renderZoneComparison(){
+  const incIdx=incidentZoneIdx();
+  document.getElementById('zone-grid').innerHTML=ZONES.map((z,i)=>{
+    const r=zoneReadings[i];if(!r)return'';
+    const avgRisk=workers.filter(w=>w.zoneIdx===i).reduce((s,w)=>s+w.risk,0)/
+      Math.max(workers.filter(w=>w.zoneIdx===i).length,1);
+    const isDanger=r.gas>4||r.o2<16||r.hazard>70;
+    const isWarn=r.gas>2||r.o2<18||r.hazard>40||avgRisk>0.4;
+    const cls=i===incIdx?'incident':isDanger?'danger':isWarn?'warn':'';
+    const riskPct=(avgRisk*100).toFixed(0);
+    const riskCol=avgRisk>0.7?'var(--red)':avgRisk>0.4?'var(--amber)':'var(--green)';
+    const wCount=workers.filter(w=>w.zoneIdx===i).length;
+    return`<div class="zone-card ${cls}">
+      <div class="zone-name" style="color:${z.col}">${z.name}${i===incIdx?' ⚡':''}</div>
+      <div class="zone-stat"><span class="zone-stat-label">METHANE</span>
+        <span class="zone-stat-val" style="color:${r.gas>4?'var(--red)':r.gas>2?'var(--amber)':'var(--green)'}">${r.gas.toFixed(2)}%</span></div>
+      <div class="zone-stat"><span class="zone-stat-label">OXYGEN</span>
+        <span class="zone-stat-val" style="color:${r.o2<16?'var(--red)':r.o2<18?'var(--amber)':'var(--green)'}">${r.o2.toFixed(1)}%</span></div>
+      <div class="zone-stat"><span class="zone-stat-label">COLLAPSE</span>
+        <span class="zone-stat-val" style="color:${r.hazard>70?'var(--red)':r.hazard>40?'var(--amber)':'var(--green)'}">${Math.round(r.hazard)}%</span></div>
+      <div class="zone-stat"><span class="zone-stat-label">WORKERS</span>
+        <span class="zone-stat-val" style="color:var(--text2)">${wCount}</span></div>
+      <div class="zone-risk-bar">
+        <div class="zone-risk-fill" style="width:${riskPct}%;background:${riskCol}"></div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:.52rem;color:var(--text3);margin-top:.25rem;">AVG RISK ${riskPct}%</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ RENDER: MAP ════════════════════════════════════════════ */
+function renderMap(){
+  const canvas=document.getElementById('map-canvas');
+  const rect=canvas.getBoundingClientRect();
+  const W=rect.width>0?rect.width:(canvas.parentElement?.clientWidth||600);
+  const H=300;
+  if(W===0)return;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  ctx.fillStyle='#040609';ctx.fillRect(0,0,W,H);
+
+  ctx.strokeStyle='rgba(26,32,48,.8)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=36){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const hmMode=document.getElementById('heatmap-select').value;
+  if(hmMode!=='none'){
+    const hmCanvas=document.createElement('canvas');
+    hmCanvas.width=W;hmCanvas.height=H;
+    const hmCtx=hmCanvas.getContext('2d');
+    workers.forEach(w=>{
+      const r=zoneReadings[w.zoneIdx]||zoneReadings[0];
+      if(!r)return;
+      let intensity=0;
+      if(hmMode==='risk')    intensity=w.risk;
+      else if(hmMode==='gas')intensity=Math.min(r.gas/5,1);
+      else if(hmMode==='o2') intensity=Math.max(0,(21-r.o2)/9);
+      if(intensity<0.05)return;
+      const px=w.x*W,py=w.y*H;
+      if(!isFinite(px)||!isFinite(py)||px<0||py<0)return;
+      const grd=hmCtx.createRadialGradient(px,py,0,px,py,40+intensity*30);
+      const alpha=intensity*0.35;
+      if(hmMode==='risk'){grd.addColorStop(0,`rgba(232,64,64,${alpha})`);grd.addColorStop(1,'rgba(232,64,64,0)');}
+      else if(hmMode==='gas'){grd.addColorStop(0,`rgba(245,166,35,${alpha})`);grd.addColorStop(1,'rgba(245,166,35,0)');}
+      else{grd.addColorStop(0,`rgba(58,184,245,${alpha})`);grd.addColorStop(1,'rgba(58,184,245,0)');}
+      hmCtx.fillStyle=grd;hmCtx.fillRect(0,0,W,H);
+    });
+    ctx.drawImage(hmCanvas,0,0);
+  }
+
+  const incIdx=incidentZoneIdx();
+  const zh=[[.1,.22,.8,.16],[.1,.52,.8,.16],[.22,.1,.16,.8],[0,0,1,.12]][incIdx];
+  ctx.fillStyle=ZONES[incIdx].col+'18';ctx.fillRect(zh[0]*W,zh[1]*H,zh[2]*W,zh[3]*H);
+  ctx.strokeStyle=ZONES[incIdx].col+'88';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+  ctx.strokeRect(zh[0]*W,zh[1]*H,zh[2]*W,zh[3]*H);ctx.setLineDash([]);
+
+  ZONES.forEach(z=>{
+    ctx.strokeStyle=z.col+'44';ctx.lineWidth=16;
+    ctx.beginPath();ctx.moveTo(z.tunnelX1*W,z.tunnelY1*H);ctx.lineTo(z.tunnelX2*W,z.tunnelY2*H);ctx.stroke();
+    ctx.strokeStyle=z.col+'99';ctx.lineWidth=1.5;ctx.stroke();
+  });
+
+  [['Shaft A',.5,.22],['Shaft B',.5,.52],['Tunnel C',.28,.5],['Surface',.75,.1]].forEach(([l,lx,ly],i)=>{
+    ctx.fillStyle=ZONES[i].col+'dd';ctx.font='bold 9px JetBrains Mono';
+    ctx.fillText(l,lx*W-ctx.measureText(l).width/2,ly*H);
+  });
+
+  ctx.fillStyle=ZONES[incIdx].col;ctx.font='bold 9px JetBrains Mono';
+  ctx.fillText(`▶ ${ZONES[incIdx].name.toUpperCase()} [INCIDENT]`,zh[0]*W+6,zh[1]*H+13);
+
+  EXIT_POINTS.forEach(ep=>{
+    const ex=ep.x*W,ey=ep.y*H;
+    ctx.fillStyle='#27c97a';ctx.font='bold 8px JetBrains Mono';
+    ctx.fillText('EXIT',ex-(ep.x<.5?0:24),ey+4);
+    if(isFinite(ex)&&isFinite(ey)&&ex>0&&ey>0){
+      const egrd=ctx.createRadialGradient(ex,ey,0,ex,ey,18);
+      egrd.addColorStop(0,'rgba(39,201,122,.25)');egrd.addColorStop(1,'rgba(39,201,122,0)');
+      ctx.fillStyle=egrd;ctx.fillRect(ex-18,ey-18,36,36);
+    }
+  });
+
+  function safeWorker(w){return isFinite(w.x)&&isFinite(w.y)&&w.x>=0&&w.x<=1&&w.y>=0&&w.y<=1;}
+
+  workers.filter(w=>!w.manual).forEach(w=>{
+    if(!safeWorker(w))return;
+    const x=w.x*W,y=w.y*H,r=w.risk;
+    const col=r>0.85?'#e84040':r>0.7?'#f5a623':r>0.4?'#fbbf24':'#27c97a';
+    if(w.evacuating){
+      ctx.strokeStyle='rgba(39,201,122,.2)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+      const nearExit=EXIT_POINTS.reduce((a,b)=>Math.hypot(b.x-w.x,b.y-w.y)<Math.hypot(a.x-w.x,a.y-w.y)?b:a);
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(nearExit.x*W,nearExit.y*H);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if(r>0.7){
+      const p=0.5+0.5*Math.sin(Date.now()/380+w.id);
+      ctx.beginPath();ctx.arc(x,y,9+p*5,0,Math.PI*2);
+      ctx.strokeStyle=col+Math.floor(p*140).toString(16).padStart(2,'0');
+      ctx.lineWidth=1.2;ctx.stroke();
+    }
+    const wTeam=teamAssignments[w.id];
+    if(wTeam===1){
+      const p=0.5+0.5*Math.sin(Date.now()/180+w.id);
+      ctx.beginPath();ctx.arc(x,y,9+p*3,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(232,64,64,${0.6+p*0.4})`;ctx.lineWidth=2.5;ctx.stroke();
+      ctx.fillStyle='#e84040';ctx.font='bold 7px JetBrains Mono';ctx.fillText('T1',x-4,y+2.5);
+    }else if(wTeam===2){
+      const p=0.5+0.5*Math.sin(Date.now()/600+w.id);
+      ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(58,184,245,${0.4+p*0.3})`;ctx.lineWidth=1.5;ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#3ab8f5';ctx.font='bold 7px JetBrains Mono';ctx.fillText('T2',x-4,y+2.5);
+    }
+    ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);
+    ctx.fillStyle=col;ctx.fill();
+    ctx.strokeStyle='rgba(4,6,9,.8)';ctx.lineWidth=1.2;ctx.stroke();
+  });
+
+  workers.filter(w=>w.manual).forEach(w=>{
+    if(!safeWorker(w))return;
+    const x=w.x*W,y=w.y*H,r=w.risk;
+    const col=r>0.85?'#e84040':r>0.7?'#f5a623':'#fbbf24';
+    const p=0.5+0.5*Math.sin(Date.now()/260+w.id);
+    if(w.evacuating){
+      ctx.strokeStyle='rgba(39,201,122,.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+      const nearExit=EXIT_POINTS.reduce((a,b)=>Math.hypot(b.x-w.x,b.y-w.y)<Math.hypot(a.x-w.x,a.y-w.y)?b:a);
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(nearExit.x*W,nearExit.y*H);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.beginPath();ctx.arc(x,y,12+p*3,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(58,184,245,${0.25+p*0.5})`;ctx.lineWidth=1.2;ctx.stroke();
+    if(r>0.7){
+      ctx.beginPath();ctx.arc(x,y,18+p*5,0,Math.PI*2);
+      ctx.strokeStyle=col+Math.floor(p*90).toString(16).padStart(2,'0');ctx.lineWidth=.8;ctx.stroke();
+    }
+    ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);
+    ctx.beginPath();ctx.rect(-5.5,-5.5,11,11);
+    ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='#3ab8f5';ctx.lineWidth=1.8;ctx.stroke();
+    ctx.restore();
+    const lbl=(w.name||`#${w.id}`).substring(0,13);
+    ctx.font='bold 7.5px JetBrains Mono';ctx.fillStyle='#3ab8f5';
+    ctx.fillText(lbl,x-ctx.measureText(lbl).width/2,y-16);
+  });
+
+  if(simTime>=5){
+    const incR=zoneReadings[incidentZoneIdx()];
+    if(incR&&incR.gas>3){
+      const srcX=(ZONES[incidentZoneIdx()].tunnelX1+ZONES[incidentZoneIdx()].tunnelX2)/2*W;
+      const srcY=(ZONES[incidentZoneIdx()].tunnelY1+ZONES[incidentZoneIdx()].tunnelY2)/2*H;
+      ctx.strokeStyle='rgba(245,166,35,.3)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+      [[.3,.3*H],[.5,.6*H]].forEach(([tx,ty])=>{
+        ctx.beginPath();ctx.moveTo(srcX,srcY);ctx.lineTo(tx*W,ty);ctx.stroke();
+      });
+      ctx.setLineDash([]);
+    }
+  }
+
+  const hasT1=workers.some(w=>teamAssignments[w.id]===1);
+  if(hasT1){
+    workers.forEach(w=>{
+      if(teamAssignments[w.id]!==1||!safeWorker(w))return;
+      let minDist=Infinity,nearestExit=EXIT_POINTS[0];
+      EXIT_POINTS.forEach(ep=>{const d=Math.hypot(ep.x-w.x,ep.y-w.y);if(d<minDist){minDist=d;nearestExit=ep;}});
+      const dx=nearestExit.x-w.x,dy=nearestExit.y-w.y,dist=Math.hypot(dx,dy);
+      if(dist>0.02){
+        w.x=Math.min(Math.max(w.x+dx/dist*0.0025,0),1);
+        w.y=Math.min(Math.max(w.y+dy/dist*0.0025,0),1);
+        w.depth=Math.max(0,w.depth-0.05);
+      }
+    });
+  }
+
+  if(simRunning||workers.length>0)requestAnimationFrame(renderMap);
+}
+
+/* ═══ RENDER: WORKER CARDS ═══════════════════════════════════ */
+function renderWorkerCards(){
+  const el=document.getElementById('worker-cards');
+  if(!el)return;
+  const atRisk=workers.filter(w=>w.risk>0.5).sort((a,b)=>b.risk-a.risk);
+  const display=atRisk.length?atRisk.slice(0,12):workers.slice().sort((a,b)=>b.risk-a.risk).slice(0,8);
+  if(!display.length){
+    el.innerHTML=`<div style="font-family:var(--font-mono);font-size:.6rem;color:var(--text3);padding:.5rem;">No workers at elevated risk.</div>`;
+    return;
+  }
+  el.innerHTML=display.map(w=>{
+    const team=teamAssignments[w.id];
+    const rp=(w.risk*100).toFixed(0);
+    const rc=w.risk>0.85?'var(--red)':w.risk>0.7?'var(--amber)':'var(--green)';
+    const cardCls=team===1?'team1':team===2?'team2':w.risk>0.85?'critical':w.risk>0.7?'high':'';
+    const name=w.manual?w.name:`Worker #${w.id}`;
+    const teamLabel=team===1?'<span style="color:var(--red);font-size:.52rem">● T1</span>'
+                   :team===2?'<span style="color:var(--blue);font-size:.52rem">● T2</span>':'';
+    return`<div class="worker-card ${cardCls}">
+      <div class="wc-info">
+        <div class="wc-name">${name} ${teamLabel}</div>
+        <div class="wc-meta">${w.zone} · ${w.depth.toFixed(0)}m · fatigue ${(w.fatigue*100).toFixed(0)}%</div>
+      </div>
+      <div class="wc-risk" style="color:${rc}">${rp}%</div>
+      <div class="wc-btns">
+        <button class="assign-btn t1${team===1?' active':''}"
+          onclick="assignTeam(${w.id},1)" title="Team 1 — Immediate Extraction">T1</button>
+        <button class="assign-btn t2${team===2?' active':''}"
+          onclick="assignTeam(${w.id},2)" title="Team 2 — Priority Evacuation">T2</button>
+        ${team?`<button class="assign-btn unassign" onclick="assignTeam(${w.id},${team})">✕</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ TEAM ASSIGNMENT ════════════════════════════════════════ */
+function assignTeam(workerId,team){
+  const w=workers.find(w=>w.id===workerId);
+  if(!w)return;
+  if(teamAssignments[workerId]===team){
+    delete teamAssignments[workerId];
+    w.evacuating=false;
+    addTimelineEvent('info',`${w.manual?w.name:'Worker #'+w.id} unassigned from Team ${team}.`);
+  }else{
+    teamAssignments[workerId]=team;
+    if(team===1){
+      w.evacuating=true;
+      /* FIX 6 — t1Speed property removed; speed is read directly
+         from teamAssignments in updateWorkerPositions */
+      addTimelineEvent('critical',
+        `🚨 T1 EXTRACTION: ${w.manual?w.name:'Worker #'+w.id} (${w.zone}, risk ${(w.risk*100).toFixed(0)}%) — rescue team dispatched, forced evacuation initiated.`
+      );
+    }else{
+      w.evacuating=false;
+      addTimelineEvent('info',
+        `T2 EVACUATION: ${w.manual?w.name:'Worker #'+w.id} (${w.zone}) queued for guided evacuation on next sim tick.`
+      );
+    }
+  }
+  renderWorkerCards();
+  renderTeamTracker();
+  renderMap();
+}
+
+/* ═══ RENDER: TEAM TRACKER ═══════════════════════════════════ */
+function renderTeamTracker(){
+  const team1=workers.filter(w=>teamAssignments[w.id]===1);
+  const team2=workers.filter(w=>teamAssignments[w.id]===2);
+  const unassignedCrit=workers.filter(w=>w.risk>0.85&&!teamAssignments[w.id]).length;
+
+  document.getElementById('team-stats').innerHTML=`
+    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;
+      font-family:var(--font-mono);font-size:.6rem;
+      padding:.4rem .6rem;background:var(--bg2);border:1px solid var(--border);">
+      <span style="color:var(--text3)">DEPLOYMENT STATUS:</span>
+      <span style="color:var(--red)">● T1 <strong>${team1.length}</strong></span>
+      <span style="color:var(--blue)">● T2 <strong>${team2.length}</strong></span>
+      <span style="color:var(--text2)">Total assigned: <strong>${team1.length+team2.length}</strong></span>
+      ${unassignedCrit>0
+        ?`<span style="color:var(--red);margin-left:auto;animation:blink 1.5s infinite">⚠ ${unassignedCrit} CRITICAL UNASSIGNED — USE T1/T2 →</span>`
+        :team1.length+team2.length>0
+          ?`<span style="color:var(--green);margin-left:auto;">✓ All critical workers assigned</span>`
+          :`<span style="color:var(--text3);margin-left:auto;">← Select workers from queue using T1 / T2 buttons</span>`}
+    </div>`;
+
+  const memberHtml=(arr,t)=>arr.length
+    ?arr.map(w=>{
+        const rp=(w.risk*100).toFixed(0);
+        const rc=w.risk>0.85?'var(--red)':w.risk>0.7?'var(--amber)':'var(--green)';
+        const name=w.manual?w.name:`Worker #${w.id}`;
+        return`<div class="team-member team${t}">
+          <span>${name}<br>
+            <span style="color:var(--text3);font-size:.52rem">${w.zone} · ${w.depth.toFixed(0)}m from exit</span>
+          </span>
+          <span class="team-member-risk" style="color:${rc}">${rp}%</span>
+        </div>`;
+      }).join('')
+    :`<div class="team-empty">No workers assigned yet —<br>use T1 button in queue</div>`;
+
+  document.getElementById('team-panel').innerHTML=`
+    <div class="team-card team1">
+      <div class="team-title">T1 — IMMEDIATE EXTRACTION
+        <span style="font-family:var(--font-mono);font-size:.65rem;margin-left:.4rem">(${team1.length})</span>
+      </div>
+      ${memberHtml(team1,1)}
+    </div>
+    <div class="team-card team2">
+      <div class="team-title">T2 — PRIORITY EVACUATION
+        <span style="font-family:var(--font-mono);font-size:.65rem;margin-left:.4rem">(${team2.length})</span>
+      </div>
+      ${memberHtml(team2,2)}
+    </div>`;
+}
+
+/* ═══ RENDER: COMMANDS ═══════════════════════════════════════ */
+function renderCommands(lives,critical,r){
+  const zone=incidentZone().name;const cmds=[];
+  if(r.gas>4)          cmds.push(['critical','🚨',`Methane critical in ${zone} — evacuate, disable all ignition`]);
+  else if(r.gas>2)     cmds.push(['warning','⚠️',`Methane elevated in ${zone} — increase ventilation`]);
+  if(r.o2<16)          cmds.push(['critical','🚨',`O₂ critically low — deploy SCSR for all workers`]);
+  else if(r.o2<18)     cmds.push(['warning','⚠️',`O₂ below threshold — activate emergency supply`]);
+  if(r.hazard>70)      cmds.push(['critical','🚨',`Collapse imminent in ${zone} — evacuate immediately`]);
+  else if(r.hazard>40) cmds.push(['warning','⚠️',`Collapse risk elevated — restrict machinery`]);
+  if(r.temp>40)        cmds.push(['critical','🚨',`Extreme heat — emergency cooling required`]);
+  else if(r.temp>35)   cmds.push(['warning','⚠️',`High temp — mandatory breaks, monitor heat stress`]);
+  if(critical>0)       cmds.push(['critical','🚨',`${critical} at critical — rescue teams NOW`]);
+  else if(lives>0)     cmds.push(['warning','⚠️',`${lives} elevated — pre-position rescue at ${zone}`]);
+  if(simTime>20)       cmds.push(['critical','🕐',`Incident >20 min — Emergency Protocol Level 3`]);
+  if(!cmds.length)     cmds.push(['safe','✅',`${zone} within safe parameters — no action required`]);
+  document.getElementById('cmd-list').innerHTML=cmds.map(([cls,icon,msg])=>
+    `<div class="cmd-item ${cls}"><span class="cmd-icon">${icon}</span><span>${msg}</span></div>`).join('');
+}
+
+/* ═══ RENDER: FORECAST ═══════════════════════════════════════
+   FIX 2 — incidentZoneIdx cached once outside the loop.
+   Avoids 30× repeated DOM reads + 120 zone calculations per tick.
+═══════════════════════════════════════════════════════════════ */
+function renderForecast(incR){
+  const sc=currentScenario();
+  const cachedIncIdx=incidentZoneIdx(); // cache once — not inside loop
+  const mins=Array.from({length:31-simTime},(_,i)=>simTime+i);
+  const gF=mins.map(t=>calcZoneReadings(t)[cachedIncIdx].gas);
+  const oF=mins.map(t=>calcZoneReadings(t)[cachedIncIdx].o2);
+  const hF=mins.map(t=>calcZoneReadings(t)[cachedIncIdx].hazard);
+  const lF=mins.map(t=>{
+    const allR=calcZoneReadings(t);
+    return workers.filter(w=>mlRisk(w,allR[w.zoneIdx]||allR[0])>0.7).length;
+  });
+  Plotly.react('forecast-chart',[
+    {x:mins,y:gF,name:'Methane %',   line:{color:'#f59e0b',width:2,dash:'dot'},yaxis:'y'},
+    {x:mins,y:oF,name:'Oxygen %',    line:{color:'#3ab8f5',width:2,dash:'dot'},yaxis:'y'},
+    {x:mins,y:hF,name:'Collapse %',  line:{color:'#a78bfa',width:2,dash:'dot'},yaxis:'y2'},
+    {x:mins,y:lF,name:'Lives at Risk',line:{color:'#e84040',width:2.5},fill:'tozeroy',fillcolor:'rgba(232,64,64,.07)',yaxis:'y2'},
+  ],{
+    paper_bgcolor:'#07090d',plot_bgcolor:'#07090d',
+    font:{family:'JetBrains Mono',color:'#7a92b0',size:9},
+    margin:{l:40,r:40,t:12,b:34},
+    legend:{orientation:'h',y:1.12,bgcolor:'transparent',font:{size:8}},
+    xaxis:{title:'Minutes',color:'#3a5070',gridcolor:'#181e2a',tickfont:{size:8}},
+    yaxis:{title:'Gas / O₂',color:'#3a5070',gridcolor:'#181e2a',side:'left',tickfont:{size:8}},
+    yaxis2:{title:'Risk',overlaying:'y',side:'right',color:'#3a5070',gridcolor:'transparent',tickfont:{size:8}},
+    shapes:[
+      {type:'line',x0:simTime,x1:simTime,y0:0,y1:1,yref:'paper',line:{color:'#ffffff33',width:1,dash:'dot'}},
+      {type:'line',x0:simTime,x1:30,y0:5,y1:5,line:{color:'#e8404055',width:1,dash:'dash'}},
+    ],
+    annotations:[{x:simTime,y:1,yref:'paper',text:'NOW',showarrow:false,font:{color:'#7a92b0',size:8},xanchor:'left'}],
+  },{displayModeBar:false,responsive:true});
+  const eg=gF[gF.length-1],eo=oF[oF.length-1],el=lF[lF.length-1],rem=30-simTime;
+  let n='';
+  if(eg>=5)n+=`⚠ Methane → explosive (${eg.toFixed(1)}%) by T+30. `;
+  if(eo<=16)n+=`⚠ O₂ → critical (${eo.toFixed(1)}%) in ${rem} min. `;
+  if(el>0)n+=`📊 ML: ${el} workers at risk by T+30 without intervention.`;
+  if(!n)n=`✅ All indicators within safe bounds for next ${rem} minutes.`;
+  document.getElementById('forecast-narrative').textContent=n;
+}
+
+/* ═══ RENDER: TIMELINE ═══════════════════════════════════════ */
+function renderTimeline(){
+  const wrap=document.getElementById('timeline-wrap');
+  if(!timelineEvents.length)return;
+  wrap.innerHTML=[...timelineEvents].reverse().map(ev=>
+    `<div class="timeline-entry ${ev.type}">
+      <span class="tl-time">T+${String(ev.t).padStart(2,'0')}</span>
+      <span class="tl-msg">${ev.msg}</span>
+    </div>`).join('');
+}
+
+/* ═══ RENDER: SHIFT TRACKER ══════════════════════════════════ */
+function renderShiftTracker(){
+  const cur=SHIFTS[shiftCycle];
+  const next=SHIFTS[(shiftCycle+1)%3];
+  const nextShiftAt=Math.ceil((simTime+1)/10)*10;
+  /* FIX 6 — was using 'doc' as variable name, now 'el' */
+  const el=document.getElementById('shift-row');
+  el.innerHTML=`
+    <div class="shift-badge active">● ${cur.name} — ACTIVE</div>
+    <div style="font-family:var(--font-mono);font-size:.58rem;color:var(--text3);padding:.15rem .4rem;">
+      ${cur.workers.slice(0,3).join(' · ')}${cur.workers.length>3?` +${cur.workers.length-3} more`:''}
+    </div>
+    <div class="shift-badge incoming">↻ ${next.name} — INCOMING AT T+${String(nextShiftAt).padStart(2,'0')}</div>
+    ${simTime>0?`<div style="font-family:var(--font-mono);font-size:.56rem;color:var(--text3);padding:.15rem .4rem;">${workers.filter(w=>w.hours<2&&!w.manual).length} fresh workers deployed this shift</div>`:''}
+  `;
+  document.getElementById('shift-top').textContent=cur.name;
+}
+
+/* ═══ RENDER: FEATURES ═══════════════════════════════════════ */
+function renderFeatures(){
+  document.getElementById('feat-list').innerHTML=CFG.features.map(f=>{
+    const pct=(f.imp*100).toFixed(0);
+    const col=f.imp>.20?'var(--red)':f.imp>.12?'var(--amber)':'var(--accent)';
+    return`<div class="feat-row">
+      <div class="feat-top"><div class="feat-name">${f.name}</div>
+        <div class="feat-pct" style="color:${col}">${pct}%</div></div>
+      <div class="feat-bar"><div class="feat-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ RENDER: QUICK PROMPTS ══════════════════════════════════ */
+function renderQuickPrompts(){
+  const zone=incidentZone().name;
+  document.getElementById('quick-prompts').innerHTML=[
+    `Which zone is most dangerous now?`,
+    `Explain the cascade effect on other zones`,
+    `Evacuation plan for ${zone}?`,
+    `What happens if we wait 10 more minutes?`,
+  ].map(p=>`<button class="quick-btn" onclick="setPrompt(this.dataset.p)" data-p="${p}">${p}</button>`).join('');
+}
+function setPrompt(p){document.getElementById('chat-input').value=p;document.getElementById('chat-input').focus();}
+
+/* ═══ CLOCK + WORKER COUNT ═══════════════════════════════════ */
+function updateClock(){
+  document.getElementById('clock').textContent=
+    [new Date().getHours(),new Date().getMinutes(),new Date().getSeconds()]
+      .map(v=>String(v).padStart(2,'0')).join(':');
+}
+setInterval(updateClock,1000);updateClock();
+function updateWorkerCountTop(){
+  document.getElementById('worker-count-top').textContent=`${workers.length} WORKERS`;
+}
+
+/* ═══ AI CHAT ════════════════════════════════════════════════ */
+function saveApiKey(){
+  apiKey=document.getElementById('api-key-input').value.trim();
+  const btn=document.querySelector('.api-key-btn');
+  const badge=document.getElementById('mode-badge');
+  btn.textContent=apiKey?'✓ SAVED':'SAVE';btn.style.color=apiKey?'var(--green)':'';
+  setTimeout(()=>{btn.textContent='SAVE';btn.style.color='';},1500);
+  if(apiKey){
+    badge.textContent='🟢 LIVE — CLAUDE';
+    badge.style.cssText='font-family:var(--font-mono);font-size:.52rem;letter-spacing:.08em;padding:.12rem .38rem;border:1px solid var(--accent);color:var(--accent);background:var(--accent-dim);white-space:nowrap;flex-shrink:0;';
+  }else{
+    badge.textContent='⚡ OFFLINE';
+    badge.style.cssText='font-family:var(--font-mono);font-size:.52rem;letter-spacing:.08em;padding:.12rem .38rem;border:1px solid var(--green);color:var(--green);background:var(--green-dim);white-space:nowrap;flex-shrink:0;';
+  }
+}
+
+function buildSystemPrompt(){
+  const sorted=[...workers].sort((a,b)=>b.risk-a.risk).slice(0,5);
+  const incR=zoneReadings[incidentZoneIdx()]||{};
+  const manual=workers.filter(w=>w.manual);
+  const zoneStatus=ZONES.map((z,i)=>{
+    const r=zoneReadings[i];
+    if(!r)return`${z.name}: no data`;
+    return`${z.name}: CH4=${r.gas.toFixed(2)}% O2=${r.o2.toFixed(1)}% Collapse=${Math.round(r.hazard)}%`;
+  }).join('\n');
+  return`You are an AI safety analyst for PSAS — underground mining predictive safety.
+
+INCIDENT ZONE: ${incidentZone().name}
+CURRENT SHIFT: ${SHIFTS[shiftCycle].name}
+TIME: T+${simTime} min — ${currentScenario().name}
+
+ALL ZONE READINGS (independent per zone):
+${zoneStatus}
+
+INCIDENT ZONE DETAIL:
+- Methane: ${incR.gas?.toFixed(2)||'?'}% (LEL 5%)
+- Oxygen: ${incR.o2?.toFixed(1)||'?'}% (danger <16%)
+- Collapse: ${Math.round(incR.hazard||0)}% (danger >70%)
+- Temp: ${incR.temp?.toFixed(1)||'?'}°C
+
+WORKERS: ${workers.length} total | ${workers.filter(w=>w.risk>0.7).length} elevated | ${workers.filter(w=>w.risk>0.85).length} critical | ${workers.filter(w=>w.evacuating).length} evacuating
+${manual.length?`\nLIVE ADDED: ${manual.map(w=>`${w.name} (${w.zone}, risk ${(w.risk*100).toFixed(0)}%, fatigue ${(w.fatigue*100).toFixed(0)}%)`).join(', ')}`:''}
+
+TOP 5 AT RISK:
+${sorted.map((w,i)=>`${i+1}. ${w.manual?'⚡'+w.name:'#'+w.id} — ${w.zone} — ${(w.risk*100).toFixed(0)}% risk — ${(w.survival*100).toFixed(0)}% survival — ${w.evacuating?'EVACUATING':'stationary'}`).join('\n')}
+
+RECENT EVENTS: ${timelineEvents.slice(-3).map(e=>`T+${e.t}: ${e.msg}`).join(' | ')}
+
+Be concise, technical. Use mining terminology (LEL, SCSR, stope, adit, refuge chamber). Mention cascade effects where relevant.`;
+}
+
+function fallbackResponse(msg){
+  const sc=currentScenario();
+  const incR=zoneReadings[incidentZoneIdx()]||{gas:sc.gas,o2:sc.o2,hazard:sc.hazard,temp:sc.temp,tf:0};
+  const zone=incidentZone().name;
+  const sorted=[...workers].sort((a,b)=>b.risk-a.risk);
+  const top=sorted[0];
+  const lives=workers.filter(w=>w.risk>0.7).length;
+  const crit=workers.filter(w=>w.risk>0.85).length;
+  const evac=workers.filter(w=>w.evacuating).length;
+  const manual=workers.filter(w=>w.manual);
+  const avgS=workers.length>0
+    ?(workers.reduce((s,w)=>s+w.survival,0)/workers.length*100).toFixed(0)
+    :'—';
+  const q=msg.toLowerCase();
+
+  if(q.includes('zone')||q.includes('danger')||q.includes('worst')||q.includes('compar')){
+    const zoneRisks=ZONES.map((z,i)=>{
+      const wz=workers.filter(w=>w.zoneIdx===i);
+      const r=zoneReadings[i];
+      const avgR=wz.length?wz.reduce((s,w)=>s+w.risk,0)/wz.length:0;
+      return{name:z.name,avgR,r,count:wz.length};
+    }).sort((a,b)=>b.avgR-a.avgR);
+    return`Zone risk comparison at T+${simTime}:\n\n`+
+      zoneRisks.map((z,i)=>`${i+1}. ${z.name} — Avg Risk ${(z.avgR*100).toFixed(0)}% — CH4 ${z.r?.gas?.toFixed(2)||'?'}% — O₂ ${z.r?.o2?.toFixed(1)||'?'}% — ${z.count} workers`).join('\n')+
+      `\n\nPriority evacuation: ${zoneRisks[0].name}. ${evac>0?`${evac} workers already evacuating.`:'Evacuation not yet initiated.'}`;
+  }
+
+  if(q.includes('cascade')||q.includes('spread')||q.includes('ventilation')){
+    const incGas=incR.gas;
+    const adj=ZONES.filter((_,i)=>i!==incidentZoneIdx()&&i!==3);
+    /* FIX 4 — was using CFG.gasRate (legacy fallback) here; now uses sc.gasRate */
+    const minsToThreshold=sc.gasRate>0?((3-incGas)/sc.gasRate).toFixed(0):'—';
+    return`Cascade status at T+${simTime}:\n\n`+
+      `Incident zone (${zone}) methane: ${incGas.toFixed(2)}%. `+
+      (incGas>3
+        ?`Above 3% cascade threshold — gas is spreading via ventilation network to adjacent zones.\n\n`+
+          adj.map(z=>`${z.name}: secondary CH4 at ${zoneReadings[ZONES.indexOf(z)]?.gas?.toFixed(2)||'?'}%`).join('\n')+
+          `\n\nRecommend: seal ventilation duct between ${zone} and adjacent zones. Deploy gas detectors at junction points.`
+        :`Below 3% — no cascade risk yet. Threshold will be crossed in approximately ${minsToThreshold} minutes at current rate.`);
+  }
+
+  if(q.includes('evacuat')||q.includes('plan')||q.includes('first')){
+    const worstZ=ZONES.map((z,i)=>({...z,avgR:workers.filter(w=>w.zoneIdx===i).reduce((s,w)=>s+w.risk,0)/Math.max(workers.filter(w=>w.zoneIdx===i).length,1)})).sort((a,b)=>b.avgR-a.avgR)[0];
+    return`Evacuation plan — T+${simTime}:\n\n`+
+      `Priority 1: ${worstZ.name} (highest avg risk). ${workers.filter(w=>w.zoneIdx===ZONES.indexOf(worstZ)&&w.risk>0.85).length} critical workers require SCSR-equipped extraction.\n\n`+
+      `Currently ${evac} workers in active evacuation.\n\n`+
+      `Team deployment:\n→ Team 1 (SCSR equipped): extract ${crit} critical workers from ${zone}\n`+
+      `→ Team 2: escort ${lives-crit} elevated-risk workers to surface via primary shaft\n`+
+      `→ Refuge chamber at ${zone} entrance: confirm accessible\n\n`+
+      `Estimated clearance time: ${(lives*0.8+5).toFixed(0)} minutes.`;
+  }
+
+  if(q.includes('wait')||q.includes('10 more')||q.includes('delay')){
+    const futureT=Math.min(simTime+10,30);
+    const futureAllR=calcZoneReadings(futureT);
+    const futureIncR=futureAllR[incidentZoneIdx()];
+    const futureLives=workers.filter(w=>mlRisk(w,futureAllR[w.zoneIdx]||futureIncR)>0.7).length;
+    const delta=futureLives-lives;
+    return`Projection to T+${futureT} (10 min delay):\n\n`+
+      `• ${zone} methane: ${incR.gas.toFixed(2)}% → ${futureIncR.gas.toFixed(2)}% ${futureIncR.gas>=5?'⚠ EXPLOSIVE':''}\n`+
+      `• ${zone} oxygen: ${incR.o2.toFixed(1)}% → ${futureIncR.o2.toFixed(1)}% ${futureIncR.o2<=16?'⚠ CRITICAL':''}\n`+
+      `• Workers at risk: ${lives} → ${futureLives} (${delta>=0?'+':''}${delta})\n\n`+
+      (delta>0?`⚠ ${delta} additional worker${delta>1?'s':''} will cross the critical threshold. Each minute of delay reduces survival probability by ~2–4%.`:`Risk level remains similar, but time amplifier continues escalating. Immediate action still recommended for workers above 85%.`);
+  }
+
+  if(q.includes('shift')){
+    const cur=SHIFTS[shiftCycle];const next=SHIFTS[(shiftCycle+1)%3];
+    const freshCount=workers.filter(w=>w.hours<2&&!w.manual).length;
+    return`Shift status at T+${simTime}:\n\nActive: ${cur.name}\nPersonnel: ${cur.workers.join(', ')}\n\nIncoming: ${next.name} at T+${Math.ceil((simTime+1)/10)*10}\n\n${freshCount} workers with low fatigue (<2h underground) from last rotation.`;
+  }
+
+  return`PSAS status — T+${simTime} | ${sc.name}\n\n`+
+    ZONES.map((z,i)=>{const r=zoneReadings[i];return`${z.name}: CH4 ${r?.gas?.toFixed(2)||'?'}% O₂ ${r?.o2?.toFixed(1)||'?'}% Collapse ${Math.round(r?.hazard||0)}%`;}).join('\n')+
+    `\n\nWorkers: ${workers.length} total | ${lives} elevated | ${crit} critical | ${evac} evacuating\nAvg survival: ${avgS}%\n\n`+
+    (crit>0?`⚠ ${crit} at critical risk. Priority: ${top?.manual?top.name:'Worker #'+top?.id} in ${top?.zone} at ${((top?.risk||0)*100).toFixed(0)}% risk.`:'No critical workers at this time.')+
+    `\n\nAsk me: zone comparison, cascade effects, evacuation plan, shift status, or what-if scenarios.`;
+}
+
+async function sendChat(){
+  const input=document.getElementById('chat-input'),msg=input.value.trim();
+  if(!msg)return;
+  appendMsg('user',msg);input.value='';
+  if(!apiKey){
+    const el=appendMsg('ai','Analysing all zones...',true);
+    setTimeout(()=>{el.textContent=fallbackResponse(msg);el.classList.remove('thinking');},500+Math.random()*400);
+    return;
+  }
+  const el=appendMsg('ai','Analysing all zones...',true);
+  document.getElementById('chat-send-btn').disabled=true;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:buildSystemPrompt(),messages:[{role:'user',content:msg}]}),
+    });
+    const data=await res.json();
+    el.textContent=data.error?fallbackResponse(msg):(data.content?.[0]?.text||'No response.');
+    el.classList.remove('thinking');
+  }catch(e){el.textContent=fallbackResponse(msg);el.classList.remove('thinking');}
+  document.getElementById('chat-send-btn').disabled=false;
+}
+
+function appendMsg(role,text,thinking=false){
+  const wrap=document.getElementById('chat-messages');
+  const div=document.createElement('div');div.className=`msg ${role==='user'?'user':''}`;
+  const label=document.createElement('div');label.className='msg-label';
+  label.textContent=role==='user'?'OPERATOR':'PSAS AI ANALYST';
+  const bubble=document.createElement('div');bubble.className='msg-bubble'+(thinking?' thinking':'');
+  bubble.textContent=text;
+  div.appendChild(label);div.appendChild(bubble);wrap.appendChild(div);
+  wrap.scrollTop=wrap.scrollHeight;return bubble;
+}
+
+/* ═══ EXPORT INCIDENT REPORT ════════════════════════════════ */
+function exportReport(){
+  const sc=currentScenario();
+  const incR=zoneReadings[incidentZoneIdx()]||{};
+  const team1=workers.filter(w=>teamAssignments[w.id]===1);
+  const team2=workers.filter(w=>teamAssignments[w.id]===2);
+  const critical=workers.filter(w=>w.risk>0.85);
+  const elevated=workers.filter(w=>w.risk>0.7&&w.risk<=0.85);
+  const avgSurv=workers.length>0?workers.reduce((s,w)=>s+w.survival,0)/workers.length:1;
+  const now=new Date().toLocaleString();
+  const zoneStatus=ZONES.map((z,i)=>{
+    const r=zoneReadings[i];if(!r)return'';
+    return`<tr>
+      <td>${z.name}</td>
+      <td style="color:${r.gas>4?'#e84040':r.gas>2?'#f5a623':'#27c97a'}">${r.gas.toFixed(2)}%</td>
+      <td style="color:${r.o2<16?'#e84040':r.o2<18?'#f5a623':'#27c97a'}">${r.o2.toFixed(1)}%</td>
+      <td style="color:${r.hazard>70?'#e84040':r.hazard>40?'#f5a623':'#27c97a'}">${Math.round(r.hazard)}%</td>
+      <td>${r.temp.toFixed(1)}°C</td>
+    </tr>`;
+  }).join('');
+  const workerRows=[...workers].sort((a,b)=>b.risk-a.risk).map(w=>{
+    const team=teamAssignments[w.id];
+    const teamLabel=team?`Team ${team}`:'Unassigned';
+    const teamCol=team===1?'#e84040':team===2?'#3ab8f5':'#4a5a72';
+    return`<tr>
+      <td>${w.manual?w.name:'Worker #'+w.id}</td><td>${w.zone}</td>
+      <td style="color:${w.risk>0.85?'#e84040':w.risk>0.7?'#f5a623':'#27c97a'};font-weight:bold">${(w.risk*100).toFixed(0)}%</td>
+      <td style="color:${w.survival<0.4?'#e84040':w.survival<0.7?'#f5a623':'#27c97a'}">${(w.survival*100).toFixed(0)}%</td>
+      <td>${(w.fatigue*100).toFixed(0)}%</td><td>${w.hours.toFixed(0)}h</td>
+      <td>${w.depth.toFixed(0)}m</td><td style="color:${teamCol}">${teamLabel}</td>
+    </tr>`;
+  }).join('');
+  const tlRows=timelineEvents.map(e=>{
+    const col=e.type==='critical'?'#e84040':e.type==='warning'?'#f5a623':e.type==='info'?'#3ab8f5':'#27c97a';
+    return`<tr><td style="color:#f5a623;white-space:nowrap">T+${String(e.t).padStart(2,'0')} min</td><td style="color:${col}">${e.msg}</td></tr>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<title>PSAS Incident Report — ${now}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#07090d;color:#dce8f5;font-family:'Courier New',monospace;padding:2rem;line-height:1.6;}
+  h1{font-size:1.8rem;letter-spacing:.15em;color:#f5a623;margin-bottom:.2rem;}
+  h2{font-size:1rem;letter-spacing:.12em;color:#f5a623;margin:1.5rem 0 .6rem;border-bottom:1px solid #273d58;padding-bottom:.3rem;}
+  .meta{font-size:.75rem;color:#4a5a72;letter-spacing:.1em;margin-bottom:2rem;}
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+  .summary-card{background:#0c1018;border:1px solid #1e2d42;border-top:2px solid #f5a623;padding:.8rem;}
+  .card-label{font-size:.6rem;letter-spacing:.15em;color:#4a5a72;text-transform:uppercase;margin-bottom:.3rem;}
+  .card-val{font-size:1.6rem;color:#ffcc5c;letter-spacing:.04em;}
+  .card-val.danger{color:#e84040;}.card-val.warn{color:#f5a623;}.card-val.safe{color:#27c97a;}
+  table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:1rem;}
+  th{text-align:left;padding:.4rem .6rem;color:#4a5a72;border-bottom:1px solid #1e2d42;letter-spacing:.08em;text-transform:uppercase;font-size:.65rem;font-weight:400;}
+  td{padding:.4rem .6rem;border-bottom:1px solid #0f1318;color:#8a9bb5;}
+  tr:hover td{background:#0c1018;}
+  .team-section{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
+  .team-box{background:#0c1018;border:1px solid #1e2d42;padding:.8rem;}
+  .team-box.t1{border-top:2px solid #e84040;}.team-box.t2{border-top:2px solid #3ab8f5;}
+  .team-box h3{font-size:.85rem;letter-spacing:.1em;margin-bottom:.5rem;}
+  .team-box.t1 h3{color:#e84040;}.team-box.t2 h3{color:#3ab8f5;}
+  .footer-note{margin-top:2rem;padding-top:1rem;border-top:1px solid #1e2d42;font-size:.65rem;color:#3a5070;letter-spacing:.08em;}
+  @media print{body{background:#fff;color:#000;}h1,h2,.card-val{color:#000 !important;}.summary-card,.team-box{background:#f9f9f9;border:1px solid #ccc;}}
+</style></head><body>
+<h1>⛏ PSAS INCIDENT REPORT</h1>
+<div class="meta">GENERATED: ${now} &nbsp;|&nbsp; SCENARIO: ${sc.name} &nbsp;|&nbsp; INCIDENT ZONE: ${incidentZone().name} &nbsp;|&nbsp; ELAPSED: T+${simTime} MIN &nbsp;|&nbsp; SHIFT: ${SHIFTS[shiftCycle].name}</div>
+<h2>EXECUTIVE SUMMARY</h2>
+<div class="summary-grid">
+  <div class="summary-card"><div class="card-label">Workers On-Site</div><div class="card-val">${workers.length}</div></div>
+  <div class="summary-card"><div class="card-label">Lives At Risk</div><div class="card-val ${critical.length>0?'danger':elevated.length>0?'warn':'safe'}">${critical.length+elevated.length}</div></div>
+  <div class="summary-card"><div class="card-label">Critical (&gt;85%)</div><div class="card-val danger">${critical.length}</div></div>
+  <div class="summary-card"><div class="card-label">Avg Survival Prob</div><div class="card-val ${avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe'}">${(avgSurv*100).toFixed(0)}%</div></div>
+</div>
+<h2>INCIDENT ZONE SENSOR READINGS — ${incidentZone().name}</h2>
+<table><thead><tr><th>Sensor</th><th>Reading</th><th>Threshold</th><th>Status</th></tr></thead><tbody>
+  <tr><td>Methane</td><td style="color:${incR.gas>4?'#e84040':incR.gas>2?'#f5a623':'#27c97a'}">${incR.gas?.toFixed(2)||'—'}%</td><td>Danger &gt;4% / LEL 5%</td><td>${incR.gas>4?'⚠ CRITICAL':incR.gas>2?'ELEVATED':'NORMAL'}</td></tr>
+  <tr><td>Oxygen</td><td style="color:${incR.o2<16?'#e84040':incR.o2<18?'#f5a623':'#27c97a'}">${incR.o2?.toFixed(1)||'—'}%</td><td>Danger &lt;16%</td><td>${incR.o2<16?'⚠ CRITICAL':incR.o2<18?'LOW':'NORMAL'}</td></tr>
+  <tr><td>Collapse Risk</td><td style="color:${incR.hazard>70?'#e84040':incR.hazard>40?'#f5a623':'#27c97a'}">${incR.hazard?Math.round(incR.hazard)+'%':'—'}</td><td>Danger &gt;70%</td><td>${incR.hazard>70?'⚠ CRITICAL':incR.hazard>40?'ELEVATED':'NORMAL'}</td></tr>
+  <tr><td>Temperature</td><td style="color:${incR.temp>40?'#e84040':incR.temp>35?'#f5a623':'#27c97a'}">${incR.temp?.toFixed(1)||'—'}°C</td><td>Danger &gt;40°C</td><td>${incR.temp>40?'⚠ CRITICAL':incR.temp>35?'HIGH':'NORMAL'}</td></tr>
+</tbody></table>
+<h2>ALL ZONE READINGS</h2>
+<table><thead><tr><th>Zone</th><th>Methane</th><th>Oxygen</th><th>Collapse</th><th>Temp</th></tr></thead><tbody>${zoneStatus}</tbody></table>
+<h2>RESCUE TEAM DEPLOYMENT</h2>
+<div class="team-section">
+  <div class="team-box t1"><h3>TEAM 1 — IMMEDIATE EXTRACTION (${team1.length} assigned)</h3>
+    ${team1.length?team1.map(w=>`<div style="font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #1e2d42;color:#e84040">${w.manual?w.name:'Worker #'+w.id} · ${w.zone} · Risk ${(w.risk*100).toFixed(0)}% · ${w.depth.toFixed(0)}m from exit</div>`).join(''):'<div style="color:#4a5a72;font-size:.75rem">No workers assigned to Team 1</div>'}
+  </div>
+  <div class="team-box t2"><h3>TEAM 2 — PRIORITY EVACUATION (${team2.length} assigned)</h3>
+    ${team2.length?team2.map(w=>`<div style="font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #1e2d42;color:#3ab8f5">${w.manual?w.name:'Worker #'+w.id} · ${w.zone} · Risk ${(w.risk*100).toFixed(0)}% · ${w.depth.toFixed(0)}m from exit</div>`).join(''):'<div style="color:#4a5a72;font-size:.75rem">No workers assigned to Team 2</div>'}
+  </div>
+</div>
+<h2>FULL WORKER RISK REGISTER (${workers.length} workers)</h2>
+<table><thead><tr><th>ID / Name</th><th>Zone</th><th>ML Risk</th><th>Survival</th><th>Fatigue</th><th>Hours</th><th>Depth</th><th>Team</th></tr></thead><tbody>${workerRows}</tbody></table>
+<h2>INCIDENT TIMELINE (${timelineEvents.length} events)</h2>
+<div>${tlRows?`<table><thead><tr><th>Time</th><th>Event</th></tr></thead><tbody>${tlRows}</tbody></table>`:'<p style="color:#4a5a72;font-size:.75rem">No events recorded.</p>'}</div>
+<h2>ML MODEL — FEATURE IMPORTANCE</h2>
+<table><thead><tr><th>Feature</th><th>Weight</th><th>Contribution to Risk Score</th></tr></thead><tbody>
+  ${CFG.features.map(f=>`<tr><td>${f.name}</td><td style="color:#f5a623">${(f.imp*100).toFixed(0)}%</td>
+    <td><div style="height:4px;background:#1e2d42;width:100%"><div style="height:4px;background:#f5a623;width:${f.imp*100}%"></div></div></td></tr>`).join('')}
+</tbody></table>
+<div class="footer-note">PSAS · Predictive Safety Analytics System · Gradient Boosted Regressor + Random Forest · Report generated at ${now} · Incident elapsed time T+${simTime} minutes</div>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const tab=window.open(url,'_blank');
+  if(!tab){
+    const a=document.createElement('a');
+    a.href=url;a.download=`PSAS_Report_T${simTime}.html`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  }
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
+  addTimelineEvent('info',`Incident report opened at T+${simTime}.`);
+}
+
+/* ═══ INIT ═══════════════════════════════════════════════════ */
+populateScenarios();
+renderFeatures();
+renderQuickPrompts();
+timelineEvents=[{t:0,type:'info',msg:'System online. All zones nominal. Awaiting simulation start.'}];
+
+requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>{
+    rebuildWorkers();
+    renderShiftTracker();
+  });
+});
+
+window.addEventListener('resize',()=>{requestAnimationFrame(renderMap);});
+</script>
+</body>
+</html>
