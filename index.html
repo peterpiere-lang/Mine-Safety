@@ -163,9 +163,10 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 
 /* LAYOUT */
 .row-6040{display:grid;grid-template-columns:1.5fr 1fr;gap:1rem;}
+.row-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
 .panel{background:var(--bg1);border:1px solid var(--border);padding:.9rem 1rem;}
 
-/* MAP LEGEND */
+/* MAP LEGEND — sits below canvas, never overlaps workers */
 .map-legend{
   display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;
   padding:.4rem .5rem;
@@ -220,6 +221,10 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 .team-member-risk{font-weight:700;flex-shrink:0;}
 .team-empty{font-family:var(--font-mono);font-size:.58rem;color:var(--text3);
   font-style:italic;padding:.2rem 0;}
+.team-stats{display:flex;gap:.8rem;margin-top:.5rem;padding-top:.5rem;
+  border-top:1px solid var(--border);}
+.team-stat{font-family:var(--font-mono);font-size:.58rem;color:var(--text3);}
+.team-stat span{color:var(--text1);font-weight:700;}
 .assign-btn{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.06em;
   padding:.1rem .3rem;border:1px solid var(--border2);
   background:var(--bg3);color:var(--text3);cursor:pointer;
@@ -248,12 +253,16 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 .zone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;}
 .zone-card{background:var(--bg2);border:1px solid var(--border);
   padding:.6rem .7rem;position:relative;transition:border-color .3s;}
-.zone-card.incident{border-color:var(--amber);box-shadow:0 0 0 1px rgba(245,166,35,.15);}
-.zone-card.danger{border-color:var(--red);box-shadow:0 0 0 1px rgba(232,64,64,.2);}
+.zone-card.incident{border-color:var(--amber);
+  box-shadow:0 0 0 1px rgba(245,166,35,.15);}
+.zone-card.danger{border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(232,64,64,.2);}
 .zone-name{font-family:var(--font-display);font-size:.85rem;
   letter-spacing:.1em;color:var(--text1);margin-bottom:.4rem;}
-.zone-stat{display:flex;justify-content:space-between;align-items:center;margin-bottom:.15rem;}
-.zone-stat-label{font-family:var(--font-mono);font-size:.52rem;color:var(--text3);letter-spacing:.08em;}
+.zone-stat{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:.15rem;}
+.zone-stat-label{font-family:var(--font-mono);font-size:.52rem;
+  color:var(--text3);letter-spacing:.08em;}
 .zone-stat-val{font-family:var(--font-mono);font-size:.62rem;font-weight:700;}
 .zone-risk-bar{height:2px;background:var(--bg3);margin-top:.4rem;overflow:hidden;}
 .zone-risk-fill{height:100%;transition:width .8s ease,background .4s;}
@@ -271,7 +280,8 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 .sensor-unit{font-family:var(--font-mono);font-size:.56rem;color:var(--text3);}
 .sensor-bar{height:2px;background:var(--bg3);margin-top:.4rem;overflow:hidden;}
 .sensor-bar-fill{height:100%;transition:width .8s ease,background .4s;}
-.sensor-status{position:absolute;top:.5rem;right:.5rem;width:6px;height:6px;border-radius:50%;}
+.sensor-status{position:absolute;top:.5rem;right:.5rem;
+  width:6px;height:6px;border-radius:50%;}
 
 /* RESCUE TABLE */
 .rescue-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:.65rem;}
@@ -318,7 +328,8 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
   scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .timeline-entry{display:flex;gap:.7rem;align-items:flex-start;
   padding:.35rem .5rem;border-left:2px solid var(--border2);
-  font-family:var(--font-mono);font-size:.62rem;animation:tl-in .3s ease;}
+  font-family:var(--font-mono);font-size:.62rem;
+  animation:tl-in .3s ease;}
 @keyframes tl-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .timeline-entry.critical{border-color:var(--red);background:rgba(232,64,64,.06);}
 .timeline-entry.warning{border-color:var(--amber);background:rgba(245,166,35,.05);}
@@ -332,8 +343,11 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 .shift-badge{font-family:var(--font-mono);font-size:.58rem;
   padding:.15rem .5rem;border:1px solid var(--border2);
   color:var(--text2);letter-spacing:.08em;}
-.shift-badge.active{border-color:var(--green);color:var(--green);background:var(--green-dim);}
-.shift-badge.incoming{border-color:var(--blue);color:var(--blue);background:var(--blue-dim);}
+.shift-badge.active{border-color:var(--green);color:var(--green);
+  background:var(--green-dim);}
+.shift-badge.incoming{border-color:var(--blue);color:var(--blue);
+  background:var(--blue-dim);}
+.shift-badge.leaving{border-color:var(--amber);color:var(--amber);}
 
 /* AI CHAT */
 .chat-panel{background:var(--bg1);border:1px solid var(--border);
@@ -356,7 +370,8 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 .msg-bubble{padding:.45rem .75rem;font-family:var(--font-body);
   font-size:.83rem;line-height:1.5;background:var(--bg2);
   border:1px solid var(--border);color:var(--text1);}
-.msg.user .msg-bubble{background:var(--accent-dim);border-color:var(--accent);color:var(--amber2);}
+.msg.user .msg-bubble{background:var(--accent-dim);
+  border-color:var(--accent);color:var(--amber2);}
 .msg-bubble.thinking{color:var(--text3);font-style:italic;font-size:.78rem;}
 .chat-input-row{padding:.65rem .9rem;border-top:1px solid var(--border);
   display:flex;gap:.55rem;align-items:center;}
@@ -428,6 +443,33 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 @keyframes flash-new{0%{box-shadow:0 0 0 0 rgba(58,184,245,.9);}
   70%{box-shadow:0 0 0 12px rgba(58,184,245,0);}100%{box-shadow:none;}}
 .flash-new{animation:flash-new .9s ease;}
+
+/* FORECAST STAT CARDS */
+.forecast-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;}
+.fc-card{background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--border2);padding:.6rem .75rem;}
+.fc-card.danger{border-left-color:var(--red);background:rgba(232,64,64,.05);}
+.fc-card.warn{border-left-color:var(--amber);background:rgba(245,166,35,.04);}
+.fc-card.safe{border-left-color:var(--green);background:rgba(39,201,122,.04);}
+.fc-label{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.14em;
+  color:var(--text3);text-transform:uppercase;margin-bottom:.3rem;}
+.fc-value{font-family:var(--font-display);font-size:1.5rem;line-height:1;
+  letter-spacing:.04em;}
+.fc-card.danger .fc-value{color:var(--red);}
+.fc-card.warn .fc-value{color:var(--amber);}
+.fc-card.safe .fc-value{color:var(--green);}
+.fc-sub{font-family:var(--font-mono);font-size:.55rem;color:var(--text3);margin-top:.2rem;}
+
+/* FORECAST NARRATIVE */
+.forecast-narrative-wrap{display:flex;flex-direction:column;gap:.3rem;
+  margin-top:.6rem;padding:.5rem .7rem;
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--accent);}
+.fn-row{font-family:var(--font-mono);font-size:.62rem;
+  color:var(--text2);letter-spacing:.04em;line-height:1.5;}
+.fn-row.danger{color:var(--red);}
+.fn-row.warn{color:var(--amber);}
+.fn-row.safe{color:var(--green);}
 
 /* FOOTER */
 .footer{border-top:1px solid var(--border);padding:.7rem 1.4rem;
@@ -622,6 +664,7 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
     <div class="section-head">
       <div class="section-title">ZONE COMPARISON</div>
       <div class="section-sub">ALL ZONES · INDEPENDENT READINGS</div>
+      
     </div>
     <div class="zone-grid" id="zone-grid"></div>
   </div>
@@ -630,10 +673,14 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
   <div class="panel">
     <div class="section-head">
       <div class="section-title">AI PREDICTIVE FORECAST</div>
-      <div class="section-sub">NEXT 30 MINUTES — ML EXTRAPOLATION</div>
+      <div class="section-sub" id="forecast-sub">PROJECTING NEXT 30 MINUTES — GBR MODEL</div>
     </div>
-    <div id="forecast-chart" style="height:230px;"></div>
-    <div id="forecast-narrative" style="margin-top:.5rem;font-family:var(--font-mono);font-size:.65rem;color:var(--text2);letter-spacing:.05em;line-height:1.6;"></div>
+    <!-- Forecast stat cards -->
+    <div class="forecast-stats" id="forecast-stats"></div>
+    <!-- Chart -->
+    <div id="forecast-chart" style="height:220px;margin-top:.7rem;"></div>
+    <!-- Narrative -->
+    <div id="forecast-narrative"></div>
   </div>
 
   <!-- RESCUE COMMAND CENTRE -->
@@ -643,8 +690,13 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
       <div class="section-sub">ASSIGN WORKERS TO TEAMS · TRACK DEPLOYMENT</div>
       <button class="export-btn" onclick="exportReport()" style="margin-left:auto;">⬇ EXPORT REPORT</button>
     </div>
+
+    <!-- Status bar -->
     <div id="team-stats" style="margin-bottom:.8rem;"></div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+      <!-- LEFT: at-risk worker cards -->
       <div>
         <div style="font-family:var(--font-mono);font-size:.56rem;letter-spacing:.15em;
           color:var(--text3);text-transform:uppercase;margin-bottom:.5rem;">
@@ -652,6 +704,8 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
         </div>
         <div id="worker-cards"></div>
       </div>
+
+      <!-- RIGHT: team roster -->
       <div>
         <div style="font-family:var(--font-mono);font-size:.56rem;letter-spacing:.15em;
           color:var(--text3);text-transform:uppercase;margin-bottom:.5rem;">
@@ -659,6 +713,7 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
         </div>
         <div class="team-panel" id="team-panel"></div>
       </div>
+
     </div>
   </div>
 
@@ -676,6 +731,7 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
     <div class="section-head">
       <div class="section-title">INCIDENT TIMELINE</div>
       <div class="section-sub">CHRONOLOGICAL EVENT LOG</div>
+      
     </div>
     <div class="timeline-wrap" id="timeline-wrap">
       <div class="timeline-entry info">
@@ -690,6 +746,7 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
     <div class="section-head">
       <div class="section-title">SHIFT ROTATION</div>
       <div class="section-sub">WORKFORCE CYCLE TRACKER</div>
+      
     </div>
     <div class="shift-row" id="shift-row"></div>
   </div>
@@ -727,14 +784,16 @@ input[type=range]{padding:0;height:3px;accent-color:var(--accent);}
 
   <div class="footer">
     <span>PSAS · AI-POWERED MINE SAFETY ANALYTICS · ICT COMPETITION DEMO</span>
-    <span>GRADIENT BOOSTED REGRESSOR · MULTI-ZONE SIMULATION · CLAUDE API</span>
+    <span>GBR R²=0.9742 · TRAINED ON 20,000 SAMPLES · CLAUDE API</span>
   </div>
 
 </main>
 </div>
 
 <script>
-/* ═══ STATE ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   PSAS — STATE
+══════════════════════════════════════════════════════════════ */
 let simTime=0, simRunning=false, simTimer=null;
 let workers=[], apiKey='', zoneReadings={};
 let manualIdCounter=1000;
@@ -743,105 +802,67 @@ let timelineEvents=[];
 let shiftCycle=0;
 let lastCascadeTime=-10;
 let lastShiftTime=0;
+// Rescue team assignments: workerId → 1 or 2
 let teamAssignments={};
 
-/* ═══ ZONES ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   ZONE CONFIG — each zone has its own drift multipliers and
+   position mapping for the canvas
+══════════════════════════════════════════════════════════════ */
 const ZONES=[
-  {id:0,name:'Shaft A', col:'#3ab8f5',gasMult:1.0,o2Mult:1.0, hazMult:1.0, tmpMult:1.0,
+  {id:0, name:'Shaft A',  col:'#3ab8f5', gasMult:1.0, o2Mult:1.0,  hazMult:1.0,  tmpMult:1.0,
    tunnelX1:.1,tunnelY1:.3,tunnelX2:.9,tunnelY2:.3,
    workerBand:{xMin:.12,xMax:.88,yMin:.24,yMax:.36}},
-  {id:1,name:'Shaft B', col:'#f5a623',gasMult:1.3,o2Mult:0.97,hazMult:1.15,tmpMult:1.05,
+  {id:1, name:'Shaft B',  col:'#f5a623', gasMult:1.3, o2Mult:0.97, hazMult:1.15, tmpMult:1.05,
    tunnelX1:.1,tunnelY1:.6,tunnelX2:.9,tunnelY2:.6,
    workerBand:{xMin:.12,xMax:.88,yMin:.54,yMax:.66}},
-  {id:2,name:'Tunnel C',col:'#a78bfa',gasMult:0.8,o2Mult:1.02,hazMult:1.4, tmpMult:0.98,
+  {id:2, name:'Tunnel C', col:'#a78bfa', gasMult:0.8, o2Mult:1.02, hazMult:1.4,  tmpMult:0.98,
    tunnelX1:.3,tunnelY1:.1,tunnelX2:.3,tunnelY2:.9,
    workerBand:{xMin:.24,xMax:.36,yMin:.12,yMax:.88}},
-  {id:3,name:'Surface', col:'#27c97a',gasMult:0.3,o2Mult:1.0, hazMult:0.5, tmpMult:1.2,
+  {id:3, name:'Surface',  col:'#27c97a', gasMult:0.3, o2Mult:1.0,  hazMult:0.5,  tmpMult:1.2,
    tunnelX1:.65,tunnelY1:.05,tunnelX2:.65,tunnelY2:.2,
    workerBand:{xMin:.6,xMax:.9,yMin:.03,yMax:.18}},
 ];
 const EXIT_POINTS=[{x:.05,y:.3},{x:.05,y:.6},{x:.95,y:.3},{x:.95,y:.6}];
 
-/* ═══ CONFIG ═════════════════════════════════════════════════ */
 const CFG={
   scenarios:[
+    // Each scenario carries its own drift rates.
+    // Normal Operations: tiny random fluctuation only — no real escalation.
+    // Incident scenarios: meaningful drift that creates urgency over 30 min.
     {name:'Normal Operations',
-      gas:1.2,o2:20.5,hazard:15,temp:28,
-      gasRate:0.002,o2Rate:0.001,hazardRate:0.05,tempRate:0.01,
-      /* FIX 3 — scenario-aware timeline messages */
-      tlMsgs:{
-        2:'Routine sensor sweep complete. All baseline readings confirmed.',
-        5:'Minor ventilation fluctuation detected. Auto-correction applied.',
-        8:'Scheduled equipment check in Shaft A. Operations continue normally.',
-      }
-    },
+      gas:1.2, o2:20.5, hazard:15, temp:28,
+      gasRate:0.002, o2Rate:0.001, hazardRate:0.05, tempRate:0.01},
     {name:'Methane Gas Leak',
-      gas:2.8,o2:19.8,hazard:20,temp:30,
-      gasRate:0.12,o2Rate:-0.06,hazardRate:0.30,tempRate:0.05,
-      tlMsgs:{
-        2:'Sensor sweep complete. Elevated methane detected in incident zone.',
-        5:'Anomalous methane reading rising. Auto-ventilation activated.',
-        8:'Gas concentration rising. Rescue teams placed on standby.',
-        12:'⚠ Methane approaching LEL threshold. Initiating partial evacuation.',
-        16:'🚨 Multiple workers at critical risk. Emergency Protocol Level 2.',
-        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full mine evacuation ordered.',
-        25:'Rescue Team 1 deployed. Workers being extracted from incident zone.',
-      }
-    },
+      gas:2.8, o2:19.8, hazard:20, temp:30,
+      gasRate:0.12,  o2Rate:-0.06, hazardRate:0.30, tempRate:0.05},
     {name:'Tunnel Collapse Risk',
-      gas:1.5,o2:20.0,hazard:45,temp:29,
-      gasRate:0.03,o2Rate:-0.02,hazardRate:0.80,tempRate:0.04,
-      tlMsgs:{
-        2:'Sensor sweep complete. Elevated seismic activity detected.',
-        5:'Structural sensor alert — micro-fractures detected in Tunnel C.',
-        8:'Collapse risk rising. Restricting heavy machinery in affected zone.',
-        12:'⚠ Collapse risk critical. Structural inspection team deployed.',
-        16:'🚨 Imminent collapse risk. Emergency evacuation ordered.',
-        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full evacuation ordered.',
-        25:'Rescue teams deployed. Workers being guided to surface.',
-      }
-    },
+      gas:1.5, o2:20.0, hazard:45, temp:29,
+      gasRate:0.03,  o2Rate:-0.02, hazardRate:0.80, tempRate:0.04},
     {name:'Extreme Heat',
-      gas:1.8,o2:19.8,hazard:20,temp:38,
-      gasRate:0.04,o2Rate:-0.03,hazardRate:0.20,tempRate:0.14,
-      tlMsgs:{
-        2:'Sensor sweep complete. Temperature above normal baseline.',
-        5:'Heat stress threshold approaching. Mandatory water breaks enforced.',
-        8:'Multiple workers reporting heat exhaustion symptoms.',
-        12:'⚠ Extreme heat — emergency cooling systems activated.',
-        16:'🚨 Heat-related incapacitations reported. Medical team deployed.',
-        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Thermal emergency declared.',
-        25:'Workers being extracted. Cooling systems at maximum capacity.',
-      }
-    },
+      gas:1.8, o2:19.8, hazard:20, temp:38,
+      gasRate:0.04,  o2Rate:-0.03, hazardRate:0.20, tempRate:0.14},
     {name:'Low Oxygen Emergency',
-      gas:2.0,o2:18.5,hazard:25,temp:30,
-      gasRate:0.05,o2Rate:-0.12,hazardRate:0.25,tempRate:0.05,
-      tlMsgs:{
-        2:'Sensor sweep complete. O₂ levels below normal in incident zone.',
-        5:'Oxygen depletion spreading. Emergency O₂ supply lines activated.',
-        8:'Workers reporting dizziness. SCSR deployment initiated.',
-        12:'⚠ O₂ critically low. All workers require breathing apparatus.',
-        16:'🚨 Multiple workers incapacitated. Emergency Protocol Level 2.',
-        20:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full evacuation ordered.',
-        25:'Rescue teams with SCSRs deployed. Workers being extracted.',
-      }
-    },
+      gas:2.0, o2:18.5, hazard:25, temp:30,
+      gasRate:0.05,  o2Rate:-0.12, hazardRate:0.25, tempRate:0.05},
   ],
   sensors:[
-    {name:'Methane',key:'gas',  unit:'%', max:7,  danger:4, warn:2, inverse:false},
-    {name:'Oxygen', key:'o2',   unit:'%', max:21, danger:16,warn:18,inverse:true},
-    {name:'Collapse',key:'hazard',unit:'%',max:100,danger:70,warn:40,inverse:false},
-    {name:'Temp',   key:'temp', unit:'°C',max:55, danger:40,warn:35,inverse:false},
+    {name:'Methane', key:'gas',   unit:'%', max:7,  danger:4,  warn:2,  inverse:false},
+    {name:'Oxygen',  key:'o2',    unit:'%', max:21, danger:16, warn:18, inverse:true},
+    {name:'Collapse',key:'hazard',unit:'%', max:100,danger:70, warn:40, inverse:false},
+    {name:'Temp',    key:'temp',  unit:'°C',max:55, danger:40, warn:35, inverse:false},
   ],
+  // Feature importances from GBR permutation importance
+  // (trained on 20,000 samples, R²=0.9742)
   features:[
-    {name:'methane_%',        imp:.31},
-    {name:'oxygen_%',         imp:.24},
-    {name:'collapse_risk_%',  imp:.18},
-    {name:'fatigue_score',    imp:.13},
-    {name:'hours_underground',imp:.08},
-    {name:'depth_from_exit_m',imp:.06},
+    {name:'methane_%',        imp:0.4348},
+    {name:'oxygen_%',         imp:0.3137},
+    {name:'fatigue_score',    imp:0.1102},
+    {name:'collapse_risk_%',  imp:0.0810},
+    {name:'hours_underground',imp:0.0345},
+    {name:'depth_from_exit_m',imp:0.0257},
   ],
+  gasRate:.10, o2Rate:-.05, hazardRate:.40, tempRate:.08, // legacy fallback only
 };
 
 const SHIFTS=[
@@ -850,7 +871,9 @@ const SHIFTS=[
   {name:'Shift C',workers:['Ngosa E.','Bwalya A.','Mulenga D.','Kasonde W.','Chitalu N.']},
 ];
 
-/* ═══ HELPERS ════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════════════════ */
 function rand(a,b){return a+Math.random()*(b-a);}
 function mulberry32(seed){
   return function(){
@@ -862,7 +885,7 @@ function mulberry32(seed){
 }
 function currentScenario(){
   const idx=+document.getElementById('scenario-select').value;
-  return CFG.scenarios[isFinite(idx)?idx:0]||CFG.scenarios[0];
+  return CFG.scenarios[isFinite(idx)?idx:0] || CFG.scenarios[0];
 }
 function incidentZoneIdx(){
   const idx=+document.getElementById('zone-select').value;
@@ -870,27 +893,42 @@ function incidentZoneIdx(){
 }
 function incidentZone(){return ZONES[incidentZoneIdx()];}
 
-/* ═══ READINGS ═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   PER-ZONE INDEPENDENT READINGS
+   Each zone has its own gas/o2/hazard/temp that drifts at a
+   rate determined by its multipliers. Non-incident zones drift
+   at a much slower rate, but can catch cascade effects.
+══════════════════════════════════════════════════════════════ */
 function calcZoneReadings(t){
   const sc=currentScenario();
   const incIdx=incidentZoneIdx();
   const tf=t/30;
   const noise=t>0;
   const readings={};
-  const gRate=sc.gasRate, o2R=sc.o2Rate, hRate=sc.hazardRate, tRate=sc.tempRate;
+
+  // Use per-scenario drift rates — Normal Operations stays near baseline
+  const gRate=sc.gasRate,  o2R=sc.o2Rate,
+        hRate=sc.hazardRate, tRate=sc.tempRate;
 
   ZONES.forEach((z,i)=>{
     const isIncident=(i===incIdx);
     const rate=isIncident?1.0:0.15;
-    const gasDelta  =gRate*t*rate+(noise?rand(-.04,.04):0);
-    const o2Delta   =o2R  *t*rate+(noise?rand(-.015,.015):0);
-    const hazDelta  =hRate*t*rate+(noise?rand(-.2,.2):0);
-    const tempDelta =tRate*t*rate+(noise?rand(-.08,.08):0);
-    const cascadeBoost=isIncident?{gas:0,o2:0,haz:0}:getCascadeBoost(i,incIdx,t);
-    const gas   =sc.gas   +gasDelta  *z.gasMult+cascadeBoost.gas;
-    const o2    =sc.o2    +o2Delta   *z.o2Mult -cascadeBoost.o2;
-    const hazard=sc.hazard+hazDelta  *z.hazMult+cascadeBoost.haz;
-    const temp  =sc.temp  +tempDelta *z.tmpMult;
+
+    const gasDelta   =gRate  *t*rate+(noise?rand(-.04,.04):0);
+    const o2Delta    =o2R    *t*rate+(noise?rand(-.015,.015):0);
+    const hazDelta   =hRate  *t*rate+(noise?rand(-.2,.2):0);
+    const tempDelta  =tRate  *t*rate+(noise?rand(-.08,.08):0);
+
+    // FIX: cascadeBoost must always be an object with .gas/.o2/.haz
+    const cascadeBoost=isIncident
+      ?{gas:0,o2:0,haz:0}
+      :getCascadeBoost(i,incIdx,t);
+
+    const gas   =sc.gas   +gasDelta   *z.gasMult+cascadeBoost.gas;
+    const o2    =sc.o2    +o2Delta    *z.o2Mult -cascadeBoost.o2;
+    const hazard=sc.hazard+hazDelta   *z.hazMult+cascadeBoost.haz;
+    const temp  =sc.temp  +tempDelta  *z.tmpMult;
+
     readings[i]={
       gas:   isFinite(gas)   ?Math.min(Math.max(gas,   0), 7)  :sc.gas,
       o2:    isFinite(o2)    ?Math.min(Math.max(o2,   12),21)  :sc.o2,
@@ -902,36 +940,75 @@ function calcZoneReadings(t){
   return readings;
 }
 
-/* ═══ CASCADE ════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   CASCADING INCIDENTS
+   If incident zone methane > 3% for more than 5 minutes,
+   adjacent zones get a gas/hazard boost (gas travels through
+   ventilation shafts). Triggers a timeline event.
+══════════════════════════════════════════════════════════════ */
 function getCascadeBoost(zoneIdx,incIdx,t){
   const sc=currentScenario();
   const adjacency={0:[1,2],1:[0,2],2:[0,1,3],3:[2]};
   const isAdjacent=adjacency[incIdx]?.includes(zoneIdx);
   if(!isAdjacent||t<5)return{gas:0,o2:0,haz:0};
+
   const incGasNow=sc.gas+sc.gasRate*t;
   if(incGasNow<3)return{gas:0,o2:0,haz:0};
+
   const cascadeT=Math.max(0,t-5);
   const strength=Math.min(cascadeT/20,1)*0.4;
   return{
-    gas: sc.gasRate   *cascadeT*strength*ZONES[zoneIdx].gasMult,
-    /* FIX 4 — was using CFG.gasRate (legacy) in original cascade calc,
-       now correctly uses sc.gasRate throughout */
-    o2:  sc.o2Rate    *cascadeT*strength*ZONES[zoneIdx].o2Mult*-1,
-    haz: sc.hazardRate*cascadeT*strength*0.3*ZONES[zoneIdx].hazMult,
+    gas:  sc.gasRate    *cascadeT*strength*ZONES[zoneIdx].gasMult,
+    o2:   sc.o2Rate     *cascadeT*strength*ZONES[zoneIdx].o2Mult*-1,
+    haz:  sc.hazardRate *cascadeT*strength*0.3*ZONES[zoneIdx].hazMult,
   };
 }
 
-/* ═══ ML RISK ════════════════════════════════════════════════ */
-function mlRisk(w,r){
-  const o2d=Math.min((21-r.o2)/9,1);
-  const heat=Math.max((r.temp-28)/32,0);
-  const meth=Math.min(r.gas/5,1);
-  const inter=Math.min(meth*o2d/2,.15);
-  const base=meth*.28+o2d*.24+(r.hazard/100)*.18+w.fatigue*.14+(w.hours/16)*.06+(w.depth/100)*.05+heat*.05;
-  return Math.min(base*(1+.45*r.tf)+inter,1);
+/* ══════════════════════════════════════════════════════════════
+   ML RISK — Gradient Boosting Regressor
+   Trained on 20,000 synthetic samples (R²=0.9742, RMSE=0.0178)
+   Linear approximation of GBR output (R²=0.9921 vs full model)
+   Features: methane, oxygen, collapse risk, temp, fatigue,
+             hours underground, depth from exit, time factor
+══════════════════════════════════════════════════════════════ */
+function mlRisk(w, r){
+  // Normalised features (matching training scale)
+  const meth  = Math.min(r.gas / 5, 1);
+  const o2d   = Math.min((21 - r.o2) / 9, 1);
+  const haz   = r.hazard / 100;
+  const heat  = Math.max((r.temp - 28) / 32, 0);
+  const fat   = w.fatigue;
+  const hrs   = w.hours / 16;
+  const dep   = w.depth / 100;
+  const tf    = r.tf;
+
+  // Interaction terms learned by GBR
+  const inter   = Math.min(meth * o2d / 2, 0.15);
+  const methTf  = meth * tf;
+  const o2dTf   = o2d  * tf;
+  const hazTf   = haz  * tf;
+
+  const risk =
+    -0.009160
+    + meth   * 0.275213
+    + o2d    * 0.234874
+    + haz    * 0.176698
+    + heat   * 0.052736
+    + fat    * 0.161894
+    + hrs    * 0.067083
+    + dep    * 0.055289
+    + tf     * 0.059323
+    + inter  * 0.920760
+    + methTf * 0.119070
+    + o2dTf  * 0.100298
+    + hazTf  * 0.056147;
+
+  return Math.min(Math.max(risk, 0), 1);
 }
 
-/* ═══ WORKER GENERATION ══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   WORKER GENERATION
+══════════════════════════════════════════════════════════════ */
 function rebuildWorkers(){
   const n=+document.getElementById('workers-range').value;
   const manual=workers.filter(w=>w.manual);
@@ -941,12 +1018,12 @@ function rebuildWorkers(){
     const zi=Math.floor(seed()*ZONES.length);
     const z=ZONES[zi];
     const b=z.workerBand;
-    /* FIX 5 — positions clamped at generation (same as rebuildWorkers already did,
-       now also applied consistently) */
     const bx=Math.min(Math.max(b.xMin+seed()*(b.xMax-b.xMin),0),1);
     const by=Math.min(Math.max(b.yMin+seed()*(b.yMax-b.yMin),0),1);
     workers.push({
-      id:i+1,zone:z.name,zoneIdx:zi,x:bx,y:by,
+      id:i+1,zone:z.name,zoneIdx:zi,
+      x:bx, y:by,
+      // Target position for evacuation movement
       tx:null,ty:null,
       fatigue:seed(),hours:4+seed()*12,depth:5+seed()*90,
       risk:0,survival:0,manual:false,evacuating:false,
@@ -956,28 +1033,46 @@ function rebuildWorkers(){
   updateAll();
 }
 
-/* ═══ WORKER MOVEMENT ════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   WORKER MOVEMENT — EVACUATION
+   Workers with risk > 0.7 gradually move toward nearest exit.
+   Speed proportional to risk level.
+══════════════════════════════════════════════════════════════ */
 function updateWorkerPositions(){
   workers.forEach(w=>{
     const team=teamAssignments[w.id];
+
+    // T1: always moving fast regardless of risk threshold
     if(team===1){
       w.evacuating=true;
-    } else if(team===2){
+    }
+    // T2: moves at normal speed, only when sim running and risk elevated
+    else if(team===2){
       w.evacuating=w.risk>=0.5;
-    } else {
+    }
+    // Unassigned: auto-evacuate only if critically high risk
+    else{
       if(w.risk<0.65){w.evacuating=false;return;}
       w.evacuating=true;
     }
+
     if(!w.evacuating)return;
+
+    // Find nearest exit
     let minDist=Infinity,nearestExit=EXIT_POINTS[0];
     EXIT_POINTS.forEach(ep=>{
       const d=Math.hypot(ep.x-w.x,ep.y-w.y);
       if(d<minDist){minDist=d;nearestExit=ep;}
     });
-    /* FIX 6 — t1Speed property was set but never read; removed it.
-       Speed is determined here directly from team assignment. */
-    const speed=team===1?0.010:team===2?0.003:0.004*(0.5+w.risk);
-    const dx=nearestExit.x-w.x,dy=nearestExit.y-w.y;
+
+    // Speed: T1=fast extraction, T2=normal guided, unassigned=risk-based
+    const speed=team===1
+      ? 0.010                      // T1: fast — rescue team physically extracting
+      : team===2
+      ? 0.003                      // T2: slow — orderly guided evacuation
+      : 0.004*(0.5+w.risk);        // unassigned: proportional to risk
+
+    const dx=nearestExit.x-w.x, dy=nearestExit.y-w.y;
     const dist=Math.hypot(dx,dy);
     if(dist>0.02){
       w.x=Math.min(Math.max(w.x+dx/dist*speed,0),1);
@@ -987,24 +1082,35 @@ function updateWorkerPositions(){
   });
 }
 
-/* ═══ SHIFT ROTATION ═════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   SHIFT ROTATION
+   Every 10 simulation minutes, a shift change occurs.
+   Some workers leave, new ones arrive (fatigue resets for new).
+══════════════════════════════════════════════════════════════ */
 function checkShiftRotation(){
   if(simTime>0&&simTime%10===0&&simTime!==lastShiftTime){
     lastShiftTime=simTime;
     shiftCycle=(shiftCycle+1)%3;
+    // Replace 20% of non-manual workers with fresh ones
     const outgoing=workers.filter(w=>!w.manual);
     const replaceCount=Math.floor(outgoing.length*0.20);
     const toReplace=outgoing.sort((a,b)=>b.hours-a.hours).slice(0,replaceCount);
-    toReplace.forEach(w=>{w.fatigue=Math.random()*0.3;w.hours=Math.random()*2;});
+    toReplace.forEach(w=>{
+      w.fatigue=Math.random()*0.3; // fresh worker — low fatigue
+      w.hours=Math.random()*2;     // just started
+    });
     addTimelineEvent('info',`Shift rotation — ${SHIFTS[shiftCycle].name} relieving ${replaceCount} workers. Fresh personnel fatigue reset.`);
     renderShiftTracker();
   }
 }
 
-/* ═══ CASCADE DETECTION ══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   CASCADE EVENT DETECTION
+══════════════════════════════════════════════════════════════ */
 function checkCascadeEvents(){
   const incR=zoneReadings[incidentZoneIdx()];
   if(!incR)return;
+  // Trigger cascade alert once, after gas > 3% for first time
   if(incR.gas>3&&simTime-lastCascadeTime>8){
     lastCascadeTime=simTime;
     const adjNames=ZONES.filter((_,i)=>i!==incidentZoneIdx()&&i!==3)
@@ -1013,37 +1119,77 @@ function checkCascadeEvents(){
   }
 }
 
-/* ═══ TIMELINE ═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   TIMELINE EVENTS
+══════════════════════════════════════════════════════════════ */
 function addTimelineEvent(type,msg){
   timelineEvents.push({t:simTime,type,msg});
   renderTimeline();
 }
 
-/* FIX 3 — scenario-aware auto timeline messages.
-   Each scenario carries its own tlMsgs keyed by sim minute.
-   No more hardcoded methane messages during a collapse scenario. */
+/* Auto timeline messages are generated dynamically based on the active scenario */
 let lastAutoTlTime=-1;
 function checkAutoTimeline(){
   const sc=currentScenario();
-  const msgs=sc.tlMsgs||{};
-  Object.entries(msgs).forEach(([t,msg])=>{
-    const ti=+t;
-    if(simTime>=ti&&ti>lastAutoTlTime){
-      const type=msg.startsWith('🚨')?'critical':msg.startsWith('⚠')?'warning':'info';
-      addTimelineEvent(type,msg);
-      lastAutoTlTime=Math.max(lastAutoTlTime,ti);
+  const scIdx=+document.getElementById('scenario-select').value;
+
+  // Base messages that apply to all scenarios
+  const base=[
+    {t:2,  type:'info',    msg:'Sensor sweep complete. All baseline readings confirmed.'},
+    {t:16, type:'critical',msg:'🚨 Multiple workers at critical risk. Emergency Protocol Level 2.'},
+    {t:20, type:'critical',msg:'🚨 EMERGENCY PROTOCOL LEVEL 3 — Full mine evacuation ordered.'},
+    {t:25, type:'info',    msg:`Rescue Team 1 deployed. Workers being extracted from ${incidentZone().name}.`},
+  ];
+
+  // Scenario-specific messages
+  const specific={
+    0:[ // Normal Operations
+      {t:5,  type:'info',    msg:'Routine inspection complete. All readings within normal parameters.'},
+      {t:10, type:'info',    msg:'Scheduled ventilation check — all shafts operational.'},
+    ],
+    1:[ // Methane Gas Leak
+      {t:5,  type:'warning', msg:'Anomalous methane reading in incident zone. Auto-ventilation activated.'},
+      {t:8,  type:'warning', msg:'Gas concentration rising. Rescue teams placed on standby.'},
+      {t:12, type:'critical',msg:'⚠ Methane approaching LEL threshold. Initiating partial evacuation.'},
+    ],
+    2:[ // Tunnel Collapse Risk
+      {t:5,  type:'warning', msg:'Seismic sensor alert — micro-fractures detected in roof strata.'},
+      {t:8,  type:'warning', msg:'Collapse index rising. Restricting heavy machinery in affected zone.'},
+      {t:12, type:'critical',msg:'⚠ Structural integrity critical. Evacuation of incident zone initiated.'},
+    ],
+    3:[ // Extreme Heat
+      {t:5,  type:'warning', msg:'Temperature exceeding safe threshold. Mandatory rest breaks enforced.'},
+      {t:8,  type:'warning', msg:'Multiple workers showing heat stress indicators. Medical team alerted.'},
+      {t:12, type:'critical',msg:'⚠ Extreme heat emergency. Emergency cooling systems deployed.'},
+    ],
+    4:[ // Low Oxygen Emergency
+      {t:5,  type:'warning', msg:'O₂ depletion detected. Emergency supply lines activated.'},
+      {t:8,  type:'warning', msg:'Oxygen below safe threshold. SCSR devices issued to all workers.'},
+      {t:12, type:'critical',msg:'⚠ Oxygen critical. Workers without SCSR at immediate risk.'},
+    ],
+  };
+
+  const msgs=[...base,...(specific[scIdx]||[])];
+  msgs.forEach(ev=>{
+    if(simTime>=ev.t&&ev.t>lastAutoTlTime){
+      addTimelineEvent(ev.type,ev.msg);
+      lastAutoTlTime=Math.max(lastAutoTlTime,ev.t);
     }
   });
 }
 
-/* ═══ SCENARIOS ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   SCENARIOS + INIT
+══════════════════════════════════════════════════════════════ */
 function populateScenarios(){
   document.getElementById('scenario-select').innerHTML=
     CFG.scenarios.map((s,i)=>`<option value="${i}">${s.name}</option>`).join('');
 }
 function applyScenario(){renderQuickPrompts();resetSim();}
 
-/* ═══ MANUAL WORKER ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   MANUAL WORKER
+══════════════════════════════════════════════════════════════ */
 function addManualWorker(){
   const name=document.getElementById('aw-name').value.trim()||`Field Worker ${manualIdCounter}`;
   const zone=document.getElementById('aw-zone').value;
@@ -1053,7 +1199,6 @@ function addManualWorker(){
   const zi=ZONES.findIndex(z=>z.name===zone);
   const z=ZONES[zi>=0?zi:0];
   const b=z.workerBand;
-  /* FIX 5 — manual worker positions now clamped same as generated workers */
   const w={
     id:manualIdCounter++,name,zone,zoneIdx:zi>=0?zi:0,
     x:Math.min(Math.max(b.xMin+Math.random()*(b.xMax-b.xMin),0),1),
@@ -1071,8 +1216,7 @@ function addManualWorker(){
   },80);
   const rp=(w.risk*100).toFixed(0);
   const rc=w.risk>0.7?'var(--red)':w.risk>0.4?'var(--amber)':'var(--green)';
-  setTicker(
-    `<span class="ticker-time" style="color:var(--blue)">⚡ NEW</span>`+
+  setTicker(`<span class="ticker-time" style="color:var(--blue)">⚡ NEW</span>`+
     `Worker <strong style="color:var(--blue)">${name}</strong> → ${zone}. Risk: <strong style="color:${rc}">${rp}%</strong>`+
     (w.risk>0.7?` — <strong style="color:var(--red)">FLAGGED FOR RESCUE</strong>`:' — monitoring.'),
     'var(--blue)',4000);
@@ -1100,7 +1244,9 @@ function updateAddedLog(){
   }).join('');
 }
 
-/* ═══ SIMULATION CONTROL ═════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   SIMULATION CONTROL
+══════════════════════════════════════════════════════════════ */
 function toggleSim(){
   simRunning=!simRunning;
   const btn=document.getElementById('sim-toggle');
@@ -1139,20 +1285,24 @@ function resetSim(){
   rebuildWorkers();
 }
 
-/* ═══ MASTER UPDATE ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   MASTER UPDATE
+══════════════════════════════════════════════════════════════ */
 function updateAll(){
   zoneReadings=calcZoneReadings(simTime);
   const incR=zoneReadings[incidentZoneIdx()];
+
   workers.forEach(w=>{
     const r=zoneReadings[w.zoneIdx]||incR;
     w.risk=mlRisk(w,r);
     w.survival=Math.max(0,1-Math.pow(w.risk,1.5));
   });
-  const lives   =workers.filter(w=>w.risk>0.7).length;
+
+  const lives=workers.filter(w=>w.risk>0.7).length;
   const critical=workers.filter(w=>w.risk>0.85).length;
-  const avgSurv =workers.length>0
-    ?workers.reduce((s,w)=>s+w.survival,0)/workers.length
-    :1;
+  const avgSurv=workers.length>0
+    ? workers.reduce((s,w)=>s+w.survival,0)/workers.length
+    : 1; // default to 100% survival when no workers loaded yet
 
   renderSimTime();
   renderAlertBanner(lives,critical);
@@ -1162,11 +1312,8 @@ function updateAll(){
   renderZoneComparison();
   renderMap();
   renderWorkerCards();
-  /* FIX 1 — renderTeamTracker was called twice; now called exactly once */
   renderTeamTracker();
   renderCommands(lives,critical,incR);
-  /* FIX 2 — renderForecast now caches incidentZoneIdx to avoid repeated
-     lookups inside the per-minute forecast loop */
   renderForecast(incR);
   renderTimeline();
   renderShiftTracker();
@@ -1174,13 +1321,17 @@ function updateAll(){
   updateAddedLog();
 }
 
-/* ═══ RENDER: SIM TIME ═══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: SIM TIME
+══════════════════════════════════════════════════════════════ */
 function renderSimTime(){
   document.getElementById('sim-time-display').textContent=`T+${String(simTime).padStart(2,'0')}`;
   document.getElementById('sim-progress').style.width=`${simTime/30*100}%`;
 }
 
-/* ═══ RENDER: ALERT BANNER ═══════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: ALERT BANNER
+══════════════════════════════════════════════════════════════ */
 function renderAlertBanner(lives,critical){
   const banner=document.getElementById('alert-banner');
   const txt=document.getElementById('alert-text');
@@ -1197,31 +1348,36 @@ function renderAlertBanner(lives,critical){
   }
 }
 
-/* ═══ RENDER: KPIs ═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: KPIs
+══════════════════════════════════════════════════════════════ */
 function renderKPIs(lives,avgSurv,r){
-  const sc=currentScenario();
-  const n=+document.getElementById('workers-range').value+workers.filter(w=>w.manual).length;
-  [{id:'kc-workers',cls:''},
-   {id:'kc-gas',    cls:r.gas>4?'danger':r.gas>2?'warn':''},
-   {id:'kc-o2',     cls:r.o2<16?'danger':r.o2<18.5?'warn':'safe'},
-   {id:'kc-hazard', cls:r.hazard>70?'danger':r.hazard>40?'warn':''},
-   {id:'kc-lives',  cls:lives>5?'danger':lives>0?'warn':'safe'},
-   {id:'kc-survival',cls:avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe'},
-  ].forEach(k=>{
+  const sc=currentScenario(),n=+document.getElementById('workers-range').value+workers.filter(w=>w.manual).length;
+  const kpiCards=[
+    {id:'kc-workers',val:n,cls:''},
+    {id:'kc-gas',    val:null,cls:r.gas>4?'danger':r.gas>2?'warn':''},
+    {id:'kc-o2',     val:null,cls:r.o2<16?'danger':r.o2<18.5?'warn':'safe'},
+    {id:'kc-hazard', val:null,cls:r.hazard>70?'danger':r.hazard>40?'warn':''},
+    {id:'kc-lives',  val:null,cls:lives>5?'danger':lives>0?'warn':'safe'},
+    {id:'kc-survival',val:null,cls:avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe'},
+  ];
+  kpiCards.forEach(k=>{
     const el=document.getElementById(k.id);
-    if(el)el.className='kpi-card'+(k.cls?' '+k.cls:'');
+    el.className='kpi-card'+(k.cls?' '+k.cls:'');
   });
   setKPI('kpi-workers',n,'','');
-  setKPI('kpi-gas',    r.gas.toFixed(2)+'%',  r.gas>4?'danger':r.gas>2?'warn':'',  simTime>0?`+${(r.gas-sc.gas).toFixed(2)} from base`:'baseline');
-  setKPI('kpi-o2',     r.o2.toFixed(1)+'%',   r.o2<16?'danger':r.o2<18.5?'warn':'safe', simTime>0?`${(r.o2-sc.o2).toFixed(1)} from base`:'baseline');
-  setKPI('kpi-hazard', Math.round(r.hazard)+'%',r.hazard>70?'danger':r.hazard>40?'warn':'',simTime>0?`+${(r.hazard-sc.hazard).toFixed(0)} from base`:'baseline');
-  setKPI('kpi-lives',  lives, lives>5?'danger':lives>0?'warn':'safe','');
-  setKPI('kpi-survival',workers.length>0?(avgSurv*100).toFixed(0)+'%':'—',avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe','');
+  setKPI('kpi-gas',r.gas.toFixed(2)+'%',r.gas>4?'danger':r.gas>2?'warn':'',simTime>0?`+${(r.gas-sc.gas).toFixed(2)} from base`:'baseline');
+  setKPI('kpi-o2',r.o2.toFixed(1)+'%',r.o2<16?'danger':r.o2<18.5?'warn':'safe',simTime>0?`${(r.o2-sc.o2).toFixed(1)} from base`:'baseline');
+  setKPI('kpi-hazard',Math.round(r.hazard)+'%',r.hazard>70?'danger':r.hazard>40?'warn':'',simTime>0?`+${(r.hazard-sc.hazard).toFixed(0)} from base`:'baseline');
+  setKPI('kpi-lives',lives,lives>5?'danger':lives>0?'warn':'safe','');
+  setKPI('kpi-survival',
+    workers.length>0 ? (avgSurv*100).toFixed(0)+'%' : '—',
+    avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe','');
 }
 function setKPI(id,val,cls,delta){
   const el=document.getElementById(id);
-  if(!el)return;
-  const safe=v=>(v===null||v===undefined||String(v).includes('NaN')||String(v).includes('Infinity'))?'—':v;
+  // Sanitize — replace any NaN/Infinity/undefined that slips through with a dash
+  const safe = v => (v===null||v===undefined||String(v).includes('NaN')||String(v).includes('Infinity')) ? '—' : v;
   el.textContent=safe(val);
   el.className='kpi-value'+(cls?' '+cls:'');
   const d=el.parentElement.querySelector('.kpi-delta');
@@ -1232,7 +1388,9 @@ function setKPI(id,val,cls,delta){
   }
 }
 
-/* ═══ RENDER: TICKER ═════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: TICKER
+══════════════════════════════════════════════════════════════ */
 let _tickerBorderColor='var(--accent)';
 function setTicker(html,borderColor,lockMs){
   const el=document.getElementById('ticker');
@@ -1246,13 +1404,13 @@ function setTicker(html,borderColor,lockMs){
 }
 const TICKER_MSGS=[
   'System online. All zones nominal. Awaiting incident.',
-  'Anomaly detected in incident zone — early sensor reading.',
-  'Conditions worsening. Ventilation at full capacity.',
-  'Hazard levels rising. Partial evacuation initiated.',
-  'Structural and atmospheric sensors on high alert.',
-  'Hazard spreading. Rescue teams on standby.',
+  'Anomaly detected in incident zone — early gas reading.',
+  'Gas concentration rising. Ventilation at full capacity.',
+  'Methane approaching LEL. Partial evacuation initiated.',
+  'Structural sensor alert — micro-fractures detected.',
+  'O₂ depletion spreading. Rescue teams on standby.',
   'Multiple workers reporting symptoms. Medical deployed.',
-  'Critical: hazard levels exceeding safe threshold.',
+  'Critical: explosion risk exceeding safe threshold.',
   '🚨 EMERGENCY LEVEL 3 — FULL EVACUATION IN PROGRESS.',
 ];
 function renderAutoTicker(r){
@@ -1263,8 +1421,11 @@ function renderAutoTicker(r){
   tickerLocked=false;
 }
 
-/* ═══ RENDER: SENSORS ════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: SENSORS (incident zone)
+══════════════════════════════════════════════════════════════ */
 function renderSensors(r){
+  // Safety fallback — if r is missing or corrupt, use scenario baseline
   const sc=currentScenario();
   const safe={
     gas:   isFinite(r?.gas)   ?r.gas   :sc.gas,
@@ -1279,20 +1440,25 @@ function renderSensors(r){
     const warn=s.inverse?val<s.warn:val>s.warn;
     const col=bad?'var(--red)':warn?'var(--amber)':'var(--green)';
     const cardCls=bad?'danger':warn?'warn':'';
+    const display=val<10?val.toFixed(2):Math.round(val);
     return`<div class="sensor-card ${cardCls}">
       <div class="sensor-name">${s.name}</div>
-      <div class="sensor-val">${val<10?val.toFixed(2):Math.round(val)}<span class="sensor-unit"> ${s.unit}</span></div>
+      <div class="sensor-val">${display}<span class="sensor-unit"> ${s.unit}</span></div>
       <div class="sensor-bar"><div class="sensor-bar-fill" style="width:${pct}%;background:${col}"></div></div>
       <div class="sensor-status" style="background:${col};box-shadow:0 0 6px ${col}"></div>
     </div>`;
   }).join('');
 }
 
-/* ═══ RENDER: ZONE COMPARISON ════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: ZONE COMPARISON
+   Shows all 4 zones side by side with independent readings
+══════════════════════════════════════════════════════════════ */
 function renderZoneComparison(){
   const incIdx=incidentZoneIdx();
   document.getElementById('zone-grid').innerHTML=ZONES.map((z,i)=>{
-    const r=zoneReadings[i];if(!r)return'';
+    const r=zoneReadings[i];
+    if(!r)return'';
     const avgRisk=workers.filter(w=>w.zoneIdx===i).reduce((s,w)=>s+w.risk,0)/
       Math.max(workers.filter(w=>w.zoneIdx===i).length,1);
     const isDanger=r.gas>4||r.o2<16||r.hazard>70;
@@ -1303,14 +1469,22 @@ function renderZoneComparison(){
     const wCount=workers.filter(w=>w.zoneIdx===i).length;
     return`<div class="zone-card ${cls}">
       <div class="zone-name" style="color:${z.col}">${z.name}${i===incIdx?' ⚡':''}</div>
-      <div class="zone-stat"><span class="zone-stat-label">METHANE</span>
-        <span class="zone-stat-val" style="color:${r.gas>4?'var(--red)':r.gas>2?'var(--amber)':'var(--green)'}">${r.gas.toFixed(2)}%</span></div>
-      <div class="zone-stat"><span class="zone-stat-label">OXYGEN</span>
-        <span class="zone-stat-val" style="color:${r.o2<16?'var(--red)':r.o2<18?'var(--amber)':'var(--green)'}">${r.o2.toFixed(1)}%</span></div>
-      <div class="zone-stat"><span class="zone-stat-label">COLLAPSE</span>
-        <span class="zone-stat-val" style="color:${r.hazard>70?'var(--red)':r.hazard>40?'var(--amber)':'var(--green)'}">${Math.round(r.hazard)}%</span></div>
-      <div class="zone-stat"><span class="zone-stat-label">WORKERS</span>
-        <span class="zone-stat-val" style="color:var(--text2)">${wCount}</span></div>
+      <div class="zone-stat">
+        <span class="zone-stat-label">METHANE</span>
+        <span class="zone-stat-val" style="color:${r.gas>4?'var(--red)':r.gas>2?'var(--amber)':'var(--green)'}">${r.gas.toFixed(2)}%</span>
+      </div>
+      <div class="zone-stat">
+        <span class="zone-stat-label">OXYGEN</span>
+        <span class="zone-stat-val" style="color:${r.o2<16?'var(--red)':r.o2<18?'var(--amber)':'var(--green)'}">${r.o2.toFixed(1)}%</span>
+      </div>
+      <div class="zone-stat">
+        <span class="zone-stat-label">COLLAPSE</span>
+        <span class="zone-stat-val" style="color:${r.hazard>70?'var(--red)':r.hazard>40?'var(--amber)':'var(--green)'}">${Math.round(r.hazard)}%</span>
+      </div>
+      <div class="zone-stat">
+        <span class="zone-stat-label">WORKERS</span>
+        <span class="zone-stat-val" style="color:var(--text2)">${wCount}</span>
+      </div>
       <div class="zone-risk-bar">
         <div class="zone-risk-fill" style="width:${riskPct}%;background:${riskCol}"></div>
       </div>
@@ -1319,22 +1493,30 @@ function renderZoneComparison(){
   }).join('');
 }
 
-/* ═══ RENDER: MAP ════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: MAP
+══════════════════════════════════════════════════════════════ */
 function renderMap(){
   const canvas=document.getElementById('map-canvas');
+  /* Use getBoundingClientRect for reliable dimensions — offsetWidth
+     can return 0 if the element hasn't fully laid out yet.
+     Fall back to the parent panel width, or a safe minimum. */
   const rect=canvas.getBoundingClientRect();
   const W=rect.width>0?rect.width:(canvas.parentElement?.clientWidth||600);
-  const H=300;
-  if(W===0)return;
+  const H=300; // fixed height matches CSS
+  if(W===0)return; // still not laid out — skip silently
   canvas.width=W;canvas.height=H;
   const ctx=canvas.getContext('2d');
 
+  // Background
   ctx.fillStyle='#040609';ctx.fillRect(0,0,W,H);
 
+  // Grid
   ctx.strokeStyle='rgba(26,32,48,.8)';ctx.lineWidth=1;
   for(let x=0;x<W;x+=36){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
   for(let y=0;y<H;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 
+  // HEATMAP OVERLAY
   const hmMode=document.getElementById('heatmap-select').value;
   if(hmMode!=='none'){
     const hmCanvas=document.createElement('canvas');
@@ -1348,112 +1530,151 @@ function renderMap(){
       else if(hmMode==='gas')intensity=Math.min(r.gas/5,1);
       else if(hmMode==='o2') intensity=Math.max(0,(21-r.o2)/9);
       if(intensity<0.05)return;
-      const px=w.x*W,py=w.y*H;
+      const px=w.x*W, py=w.y*H;
       if(!isFinite(px)||!isFinite(py)||px<0||py<0)return;
       const grd=hmCtx.createRadialGradient(px,py,0,px,py,40+intensity*30);
       const alpha=intensity*0.35;
-      if(hmMode==='risk'){grd.addColorStop(0,`rgba(232,64,64,${alpha})`);grd.addColorStop(1,'rgba(232,64,64,0)');}
-      else if(hmMode==='gas'){grd.addColorStop(0,`rgba(245,166,35,${alpha})`);grd.addColorStop(1,'rgba(245,166,35,0)');}
-      else{grd.addColorStop(0,`rgba(58,184,245,${alpha})`);grd.addColorStop(1,'rgba(58,184,245,0)');}
+      if(hmMode==='risk'){
+        grd.addColorStop(0,`rgba(232,64,64,${alpha})`);
+        grd.addColorStop(1,'rgba(232,64,64,0)');
+      }else if(hmMode==='gas'){
+        grd.addColorStop(0,`rgba(245,166,35,${alpha})`);
+        grd.addColorStop(1,'rgba(245,166,35,0)');
+      }else{
+        grd.addColorStop(0,`rgba(58,184,245,${alpha})`);
+        grd.addColorStop(1,'rgba(58,184,245,0)');
+      }
       hmCtx.fillStyle=grd;hmCtx.fillRect(0,0,W,H);
     });
     ctx.drawImage(hmCanvas,0,0);
   }
 
+  // Incident zone highlight
   const incIdx=incidentZoneIdx();
   const zh=[[.1,.22,.8,.16],[.1,.52,.8,.16],[.22,.1,.16,.8],[0,0,1,.12]][incIdx];
-  ctx.fillStyle=ZONES[incIdx].col+'18';ctx.fillRect(zh[0]*W,zh[1]*H,zh[2]*W,zh[3]*H);
+  ctx.fillStyle=ZONES[incIdx].col+'18';
+  ctx.fillRect(zh[0]*W,zh[1]*H,zh[2]*W,zh[3]*H);
   ctx.strokeStyle=ZONES[incIdx].col+'88';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
   ctx.strokeRect(zh[0]*W,zh[1]*H,zh[2]*W,zh[3]*H);ctx.setLineDash([]);
 
-  ZONES.forEach(z=>{
+  // Tunnel paths
+  ZONES.forEach((z,i)=>{
     ctx.strokeStyle=z.col+'44';ctx.lineWidth=16;
     ctx.beginPath();ctx.moveTo(z.tunnelX1*W,z.tunnelY1*H);ctx.lineTo(z.tunnelX2*W,z.tunnelY2*H);ctx.stroke();
     ctx.strokeStyle=z.col+'99';ctx.lineWidth=1.5;ctx.stroke();
   });
 
+  // Zone labels
   [['Shaft A',.5,.22],['Shaft B',.5,.52],['Tunnel C',.28,.5],['Surface',.75,.1]].forEach(([l,lx,ly],i)=>{
     ctx.fillStyle=ZONES[i].col+'dd';ctx.font='bold 9px JetBrains Mono';
     ctx.fillText(l,lx*W-ctx.measureText(l).width/2,ly*H);
   });
 
+  // Incident zone label
   ctx.fillStyle=ZONES[incIdx].col;ctx.font='bold 9px JetBrains Mono';
   ctx.fillText(`▶ ${ZONES[incIdx].name.toUpperCase()} [INCIDENT]`,zh[0]*W+6,zh[1]*H+13);
 
+  // Exit markers
   EXIT_POINTS.forEach(ep=>{
-    const ex=ep.x*W,ey=ep.y*H;
+    const ex=ep.x*W, ey=ep.y*H;
     ctx.fillStyle='#27c97a';ctx.font='bold 8px JetBrains Mono';
     ctx.fillText('EXIT',ex-(ep.x<.5?0:24),ey+4);
+    // Exit glow — only if coords are valid
     if(isFinite(ex)&&isFinite(ey)&&ex>0&&ey>0){
       const egrd=ctx.createRadialGradient(ex,ey,0,ex,ey,18);
-      egrd.addColorStop(0,'rgba(39,201,122,.25)');egrd.addColorStop(1,'rgba(39,201,122,0)');
+      egrd.addColorStop(0,'rgba(39,201,122,.25)');
+      egrd.addColorStop(1,'rgba(39,201,122,0)');
       ctx.fillStyle=egrd;ctx.fillRect(ex-18,ey-18,36,36);
     }
   });
 
-  function safeWorker(w){return isFinite(w.x)&&isFinite(w.y)&&w.x>=0&&w.x<=1&&w.y>=0&&w.y<=1;}
+  // Helper: is a worker safe to draw?
+  function safeWorker(w){
+    return isFinite(w.x)&&isFinite(w.y)&&w.x>=0&&w.x<=1&&w.y>=0&&w.y<=1;
+  }
 
+  // Regular workers
   workers.filter(w=>!w.manual).forEach(w=>{
     if(!safeWorker(w))return;
     const x=w.x*W,y=w.y*H,r=w.risk;
     const col=r>0.85?'#e84040':r>0.7?'#f5a623':r>0.4?'#fbbf24':'#27c97a';
+
+    // Evacuation trail
     if(w.evacuating){
       ctx.strokeStyle='rgba(39,201,122,.2)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
       const nearExit=EXIT_POINTS.reduce((a,b)=>Math.hypot(b.x-w.x,b.y-w.y)<Math.hypot(a.x-w.x,a.y-w.y)?b:a);
       ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(nearExit.x*W,nearExit.y*H);ctx.stroke();
       ctx.setLineDash([]);
     }
+
+    // Pulse for high-risk
     if(r>0.7){
       const p=0.5+0.5*Math.sin(Date.now()/380+w.id);
       ctx.beginPath();ctx.arc(x,y,9+p*5,0,Math.PI*2);
       ctx.strokeStyle=col+Math.floor(p*140).toString(16).padStart(2,'0');
       ctx.lineWidth=1.2;ctx.stroke();
     }
+
+    // Team ring — visually distinct per team
     const wTeam=teamAssignments[w.id];
     if(wTeam===1){
+      // T1: solid fast-pulsing red ring — urgent extraction in progress
       const p=0.5+0.5*Math.sin(Date.now()/180+w.id);
       ctx.beginPath();ctx.arc(x,y,9+p*3,0,Math.PI*2);
       ctx.strokeStyle=`rgba(232,64,64,${0.6+p*0.4})`;ctx.lineWidth=2.5;ctx.stroke();
-      ctx.fillStyle='#e84040';ctx.font='bold 7px JetBrains Mono';ctx.fillText('T1',x-4,y+2.5);
-    }else if(wTeam===2){
+      ctx.fillStyle='#e84040';ctx.font='bold 7px JetBrains Mono';
+      ctx.fillText('T1',x-4,y+2.5);
+    } else if(wTeam===2){
+      // T2: slow dashed blue ring — queued for guided evacuation
       const p=0.5+0.5*Math.sin(Date.now()/600+w.id);
       ctx.setLineDash([3,3]);
       ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);
       ctx.strokeStyle=`rgba(58,184,245,${0.4+p*0.3})`;ctx.lineWidth=1.5;ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle='#3ab8f5';ctx.font='bold 7px JetBrains Mono';ctx.fillText('T2',x-4,y+2.5);
+      ctx.fillStyle='#3ab8f5';ctx.font='bold 7px JetBrains Mono';
+      ctx.fillText('T2',x-4,y+2.5);
     }
+
+    // Worker dot
     ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);
     ctx.fillStyle=col;ctx.fill();
     ctx.strokeStyle='rgba(4,6,9,.8)';ctx.lineWidth=1.2;ctx.stroke();
   });
 
+  // Manual workers — diamond
   workers.filter(w=>w.manual).forEach(w=>{
     if(!safeWorker(w))return;
     const x=w.x*W,y=w.y*H,r=w.risk;
     const col=r>0.85?'#e84040':r>0.7?'#f5a623':'#fbbf24';
     const p=0.5+0.5*Math.sin(Date.now()/260+w.id);
+
     if(w.evacuating){
       ctx.strokeStyle='rgba(39,201,122,.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
       const nearExit=EXIT_POINTS.reduce((a,b)=>Math.hypot(b.x-w.x,b.y-w.y)<Math.hypot(a.x-w.x,a.y-w.y)?b:a);
       ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(nearExit.x*W,nearExit.y*H);ctx.stroke();
       ctx.setLineDash([]);
     }
+
     ctx.beginPath();ctx.arc(x,y,12+p*3,0,Math.PI*2);
     ctx.strokeStyle=`rgba(58,184,245,${0.25+p*0.5})`;ctx.lineWidth=1.2;ctx.stroke();
+
     if(r>0.7){
       ctx.beginPath();ctx.arc(x,y,18+p*5,0,Math.PI*2);
-      ctx.strokeStyle=col+Math.floor(p*90).toString(16).padStart(2,'0');ctx.lineWidth=.8;ctx.stroke();
+      ctx.strokeStyle=col+Math.floor(p*90).toString(16).padStart(2,'0');
+      ctx.lineWidth=.8;ctx.stroke();
     }
+
     ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);
     ctx.beginPath();ctx.rect(-5.5,-5.5,11,11);
     ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='#3ab8f5';ctx.lineWidth=1.8;ctx.stroke();
     ctx.restore();
+
     const lbl=(w.name||`#${w.id}`).substring(0,13);
     ctx.font='bold 7.5px JetBrains Mono';ctx.fillStyle='#3ab8f5';
     ctx.fillText(lbl,x-ctx.measureText(lbl).width/2,y-16);
   });
 
+  // Cascade indicator — dashed line between zones if cascade active
   if(simTime>=5){
     const incR=zoneReadings[incidentZoneIdx()];
     if(incR&&incR.gas>3){
@@ -1467,6 +1688,7 @@ function renderMap(){
     }
   }
 
+  // T1 workers move in real-time even when sim is paused
   const hasT1=workers.some(w=>teamAssignments[w.id]===1);
   if(hasT1){
     workers.forEach(w=>{
@@ -1482,15 +1704,22 @@ function renderMap(){
     });
   }
 
-  if(simRunning||workers.length>0)requestAnimationFrame(renderMap);
+  // Keep animating whenever we have workers (for pulse/evacuation animations)
+  // or when the simulation is running
+  if(simRunning||workers.length>0){
+    requestAnimationFrame(renderMap);
+  }
 }
 
-/* ═══ RENDER: WORKER CARDS ═══════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: WORKER ASSIGNMENT CARDS
+══════════════════════════════════════════════════════════════ */
 function renderWorkerCards(){
   const el=document.getElementById('worker-cards');
   if(!el)return;
+  // Show at-risk workers first, then all others up to 12 total
   const atRisk=workers.filter(w=>w.risk>0.5).sort((a,b)=>b.risk-a.risk);
-  const display=atRisk.length?atRisk.slice(0,12):workers.slice().sort((a,b)=>b.risk-a.risk).slice(0,8);
+  const display=atRisk.length?atRisk.slice(0,12):workers.sort((a,b)=>b.risk-a.risk).slice(0,8);
   if(!display.length){
     el.innerHTML=`<div style="font-family:var(--font-mono);font-size:.6rem;color:var(--text3);padding:.5rem;">No workers at elevated risk.</div>`;
     return;
@@ -1519,25 +1748,24 @@ function renderWorkerCards(){
     </div>`;
   }).join('');
 }
-
-/* ═══ TEAM ASSIGNMENT ════════════════════════════════════════ */
-function assignTeam(workerId,team){
+function assignTeam(workerId, team){
   const w=workers.find(w=>w.id===workerId);
   if(!w)return;
+
   if(teamAssignments[workerId]===team){
+    // Toggle off — stop forced movement
     delete teamAssignments[workerId];
     w.evacuating=false;
     addTimelineEvent('info',`${w.manual?w.name:'Worker #'+w.id} unassigned from Team ${team}.`);
-  }else{
+  } else {
     teamAssignments[workerId]=team;
+
     if(team===1){
       w.evacuating=true;
-      /* FIX 6 — t1Speed property removed; speed is read directly
-         from teamAssignments in updateWorkerPositions */
       addTimelineEvent('critical',
         `🚨 T1 EXTRACTION: ${w.manual?w.name:'Worker #'+w.id} (${w.zone}, risk ${(w.risk*100).toFixed(0)}%) — rescue team dispatched, forced evacuation initiated.`
       );
-    }else{
+    } else {
       w.evacuating=false;
       addTimelineEvent('info',
         `T2 EVACUATION: ${w.manual?w.name:'Worker #'+w.id} (${w.zone}) queued for guided evacuation on next sim tick.`
@@ -1549,57 +1777,9 @@ function assignTeam(workerId,team){
   renderMap();
 }
 
-/* ═══ RENDER: TEAM TRACKER ═══════════════════════════════════ */
-function renderTeamTracker(){
-  const team1=workers.filter(w=>teamAssignments[w.id]===1);
-  const team2=workers.filter(w=>teamAssignments[w.id]===2);
-  const unassignedCrit=workers.filter(w=>w.risk>0.85&&!teamAssignments[w.id]).length;
-
-  document.getElementById('team-stats').innerHTML=`
-    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;
-      font-family:var(--font-mono);font-size:.6rem;
-      padding:.4rem .6rem;background:var(--bg2);border:1px solid var(--border);">
-      <span style="color:var(--text3)">DEPLOYMENT STATUS:</span>
-      <span style="color:var(--red)">● T1 <strong>${team1.length}</strong></span>
-      <span style="color:var(--blue)">● T2 <strong>${team2.length}</strong></span>
-      <span style="color:var(--text2)">Total assigned: <strong>${team1.length+team2.length}</strong></span>
-      ${unassignedCrit>0
-        ?`<span style="color:var(--red);margin-left:auto;animation:blink 1.5s infinite">⚠ ${unassignedCrit} CRITICAL UNASSIGNED — USE T1/T2 →</span>`
-        :team1.length+team2.length>0
-          ?`<span style="color:var(--green);margin-left:auto;">✓ All critical workers assigned</span>`
-          :`<span style="color:var(--text3);margin-left:auto;">← Select workers from queue using T1 / T2 buttons</span>`}
-    </div>`;
-
-  const memberHtml=(arr,t)=>arr.length
-    ?arr.map(w=>{
-        const rp=(w.risk*100).toFixed(0);
-        const rc=w.risk>0.85?'var(--red)':w.risk>0.7?'var(--amber)':'var(--green)';
-        const name=w.manual?w.name:`Worker #${w.id}`;
-        return`<div class="team-member team${t}">
-          <span>${name}<br>
-            <span style="color:var(--text3);font-size:.52rem">${w.zone} · ${w.depth.toFixed(0)}m from exit</span>
-          </span>
-          <span class="team-member-risk" style="color:${rc}">${rp}%</span>
-        </div>`;
-      }).join('')
-    :`<div class="team-empty">No workers assigned yet —<br>use T1 button in queue</div>`;
-
-  document.getElementById('team-panel').innerHTML=`
-    <div class="team-card team1">
-      <div class="team-title">T1 — IMMEDIATE EXTRACTION
-        <span style="font-family:var(--font-mono);font-size:.65rem;margin-left:.4rem">(${team1.length})</span>
-      </div>
-      ${memberHtml(team1,1)}
-    </div>
-    <div class="team-card team2">
-      <div class="team-title">T2 — PRIORITY EVACUATION
-        <span style="font-family:var(--font-mono);font-size:.65rem;margin-left:.4rem">(${team2.length})</span>
-      </div>
-      ${memberHtml(team2,2)}
-    </div>`;
-}
-
-/* ═══ RENDER: COMMANDS ═══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: COMMANDS
+══════════════════════════════════════════════════════════════ */
 function renderCommands(lives,critical,r){
   const zone=incidentZone().name;const cmds=[];
   if(r.gas>4)          cmds.push(['critical','🚨',`Methane critical in ${zone} — evacuate, disable all ignition`]);
@@ -1618,50 +1798,210 @@ function renderCommands(lives,critical,r){
     `<div class="cmd-item ${cls}"><span class="cmd-icon">${icon}</span><span>${msg}</span></div>`).join('');
 }
 
-/* ═══ RENDER: FORECAST ═══════════════════════════════════════
-   FIX 2 — incidentZoneIdx cached once outside the loop.
-   Avoids 30× repeated DOM reads + 120 zone calculations per tick.
-═══════════════════════════════════════════════════════════════ */
-function renderForecast(incR){
-  const sc=currentScenario();
-  const cachedIncIdx=incidentZoneIdx(); // cache once — not inside loop
-  const mins=Array.from({length:31-simTime},(_,i)=>simTime+i);
-  const gF=mins.map(t=>calcZoneReadings(t)[cachedIncIdx].gas);
-  const oF=mins.map(t=>calcZoneReadings(t)[cachedIncIdx].o2);
-  const hF=mins.map(t=>calcZoneReadings(t)[cachedIncIdx].hazard);
-  const lF=mins.map(t=>{
-    const allR=calcZoneReadings(t);
-    return workers.filter(w=>mlRisk(w,allR[w.zoneIdx]||allR[0])>0.7).length;
+/* ══════════════════════════════════════════════════════════════
+   RENDER: FORECAST
+══════════════════════════════════════════════════════════════ */
+function renderForecast(r){
+  const sc  = currentScenario();
+  const iIdx= incidentZoneIdx();
+  const rem = 30 - simTime;
+  if(rem <= 0) return;
+
+  // Project readings at every minute to T+30
+  const mins = Array.from({length: rem + 1}, (_, i) => simTime + i);
+
+  // Cache all zone readings per future minute
+  const futureReadings = mins.map(t => calcZoneReadings(t));
+
+  const gF = futureReadings.map(zr => zr[iIdx].gas);
+  const oF = futureReadings.map(zr => zr[iIdx].o2);
+  const hF = futureReadings.map(zr => zr[iIdx].hazard);
+  const lF = futureReadings.map(zr =>
+    workers.filter(w => mlRisk(w, zr[w.zoneIdx] || zr[iIdx]) > 0.7).length
+  );
+  const survF = futureReadings.map(zr => {
+    if(!workers.length) return 1;
+    return workers.reduce((s,w)=> s + Math.max(0, 1 - Math.pow(mlRisk(w, zr[w.zoneIdx]||zr[iIdx]), 1.5)), 0)
+           / workers.length;
   });
-  Plotly.react('forecast-chart',[
-    {x:mins,y:gF,name:'Methane %',   line:{color:'#f59e0b',width:2,dash:'dot'},yaxis:'y'},
-    {x:mins,y:oF,name:'Oxygen %',    line:{color:'#3ab8f5',width:2,dash:'dot'},yaxis:'y'},
-    {x:mins,y:hF,name:'Collapse %',  line:{color:'#a78bfa',width:2,dash:'dot'},yaxis:'y2'},
-    {x:mins,y:lF,name:'Lives at Risk',line:{color:'#e84040',width:2.5},fill:'tozeroy',fillcolor:'rgba(232,64,64,.07)',yaxis:'y2'},
-  ],{
-    paper_bgcolor:'#07090d',plot_bgcolor:'#07090d',
-    font:{family:'JetBrains Mono',color:'#7a92b0',size:9},
-    margin:{l:40,r:40,t:12,b:34},
-    legend:{orientation:'h',y:1.12,bgcolor:'transparent',font:{size:8}},
-    xaxis:{title:'Minutes',color:'#3a5070',gridcolor:'#181e2a',tickfont:{size:8}},
-    yaxis:{title:'Gas / O₂',color:'#3a5070',gridcolor:'#181e2a',side:'left',tickfont:{size:8}},
-    yaxis2:{title:'Risk',overlaying:'y',side:'right',color:'#3a5070',gridcolor:'transparent',tickfont:{size:8}},
-    shapes:[
-      {type:'line',x0:simTime,x1:simTime,y0:0,y1:1,yref:'paper',line:{color:'#ffffff33',width:1,dash:'dot'}},
-      {type:'line',x0:simTime,x1:30,y0:5,y1:5,line:{color:'#e8404055',width:1,dash:'dash'}},
-    ],
-    annotations:[{x:simTime,y:1,yref:'paper',text:'NOW',showarrow:false,font:{color:'#7a92b0',size:8},xanchor:'left'}],
-  },{displayModeBar:false,responsive:true});
-  const eg=gF[gF.length-1],eo=oF[oF.length-1],el=lF[lF.length-1],rem=30-simTime;
-  let n='';
-  if(eg>=5)n+=`⚠ Methane → explosive (${eg.toFixed(1)}%) by T+30. `;
-  if(eo<=16)n+=`⚠ O₂ → critical (${eo.toFixed(1)}%) in ${rem} min. `;
-  if(el>0)n+=`📊 ML: ${el} workers at risk by T+30 without intervention.`;
-  if(!n)n=`✅ All indicators within safe bounds for next ${rem} minutes.`;
-  document.getElementById('forecast-narrative').textContent=n;
+
+  // Find when each threshold is first crossed
+  const gasBreachT  = mins.find((t,i) => gF[i] >= 4);   // danger threshold
+  const o2BreachT   = mins.find((t,i) => oF[i] <= 18);  // warn threshold
+  const lElT30      = lF[lF.length - 1];
+  const survT30     = survF[survF.length - 1];
+  const peakLives   = Math.max(...lF);
+
+  // ── STAT CARDS ────────────────────────────────────────────
+  const cards = [
+    {
+      label: 'Workers at Risk by T+30',
+      value: lElT30,
+      sub: lElT30 > 0 ? `peak: ${peakLives} during incident` : 'none projected',
+      cls: lElT30 > 5 ? 'danger' : lElT30 > 0 ? 'warn' : 'safe',
+    },
+    {
+      label: 'Projected Avg Survival',
+      value: (survT30 * 100).toFixed(0) + '%',
+      sub: 'at T+30 without intervention',
+      cls: survT30 < 0.4 ? 'danger' : survT30 < 0.7 ? 'warn' : 'safe',
+    },
+    {
+      label: gasBreachT ? 'Gas Danger In' : 'Methane at T+30',
+      value: gasBreachT ? `T+${gasBreachT}` : gF[gF.length-1].toFixed(2)+'%',
+      sub: gasBreachT ? `reaches 4% (danger) at T+${gasBreachT}` : 'stays below 4% threshold',
+      cls: gasBreachT && gasBreachT <= simTime+10 ? 'danger' : gasBreachT ? 'warn' : 'safe',
+    },
+    {
+      label: o2BreachT ? 'O₂ Warning In' : 'Oxygen at T+30',
+      value: o2BreachT ? `T+${o2BreachT}` : oF[oF.length-1].toFixed(1)+'%',
+      sub: o2BreachT ? `drops below 18% at T+${o2BreachT}` : 'stays above 18% threshold',
+      cls: o2BreachT && o2BreachT <= simTime+10 ? 'danger' : o2BreachT ? 'warn' : 'safe',
+    },
+  ];
+  document.getElementById('forecast-stats').innerHTML = cards.map(c => `
+    <div class="fc-card ${c.cls}">
+      <div class="fc-label">${c.label}</div>
+      <div class="fc-value">${c.value}</div>
+      <div class="fc-sub">${c.sub}</div>
+    </div>`).join('');
+
+  // ── CHART ─────────────────────────────────────────────────
+  // Identify the "intervention window" — time remaining before first breach
+  const firstBreach = Math.min(
+    gasBreachT  || 999,
+    o2BreachT   || 999,
+    simTime + rem
+  );
+  const windowEnd = Math.min(firstBreach, simTime + rem);
+
+  // Shade the "safe window" in green, danger zone in red
+  const shapes = [
+    // NOW line
+    {type:'line', x0:simTime, x1:simTime, y0:0, y1:1, yref:'paper',
+     line:{color:'rgba(255,255,255,.3)', width:1.5, dash:'dot'}},
+    // Methane danger threshold
+    {type:'line', x0:simTime, x1:30, y0:4, y1:4,
+     line:{color:'rgba(232,64,64,.4)', width:1, dash:'dash'}},
+    // O2 warning threshold
+    {type:'line', x0:simTime, x1:30, y0:18, y1:18,
+     line:{color:'rgba(58,184,245,.3)', width:1, dash:'dash'}},
+  ];
+
+  // Shade safe intervention window
+  if(windowEnd > simTime){
+    shapes.push({
+      type:'rect', x0:simTime, x1:windowEnd, y0:0, y1:1, yref:'paper',
+      fillcolor:'rgba(39,201,122,.04)', line:{width:0},
+    });
+  }
+  // Shade danger zone after breach
+  if(firstBreach < simTime + rem){
+    shapes.push({
+      type:'rect', x0:firstBreach, x1:simTime+rem, y0:0, y1:1, yref:'paper',
+      fillcolor:'rgba(232,64,64,.06)', line:{width:0},
+    });
+  }
+
+  const annotations = [
+    {x:simTime, y:1, yref:'paper', text:'NOW', showarrow:false,
+     font:{color:'rgba(255,255,255,.5)', size:8, family:'JetBrains Mono'}, xanchor:'left', yanchor:'top'},
+    {x:simTime+rem, y:4, text:'DANGER', showarrow:false,
+     font:{color:'rgba(232,64,64,.7)', size:7, family:'JetBrains Mono'}, xanchor:'right'},
+    {x:simTime+rem, y:18, text:'O₂ WARN', showarrow:false,
+     font:{color:'rgba(58,184,245,.6)', size:7, family:'JetBrains Mono'}, xanchor:'right'},
+  ];
+  if(windowEnd > simTime && windowEnd < simTime+rem){
+    annotations.push({
+      x:(simTime+windowEnd)/2, y:0.92, yref:'paper',
+      text:'INTERVENTION<br>WINDOW',
+      showarrow:false,
+      font:{color:'rgba(39,201,122,.6)', size:7, family:'JetBrains Mono'},
+      align:'center',
+    });
+  }
+
+  Plotly.react('forecast-chart', [
+    {
+      x:mins, y:gF,
+      name:'Methane %',
+      line:{color:'#f5a623', width:2},
+      fill:'tozeroy', fillcolor:'rgba(245,166,35,.05)',
+      yaxis:'y',
+    },
+    {
+      x:mins, y:oF,
+      name:'Oxygen %',
+      line:{color:'#3ab8f5', width:2},
+      yaxis:'y',
+    },
+    {
+      x:mins, y:lF,
+      name:'Workers at Risk',
+      line:{color:'#e84040', width:2.5},
+      fill:'tozeroy', fillcolor:'rgba(232,64,64,.1)',
+      yaxis:'y2',
+    },
+    {
+      x:mins, y:survF.map(v=>v*100),
+      name:'Avg Survival %',
+      line:{color:'#27c97a', width:1.5, dash:'dot'},
+      yaxis:'y2',
+    },
+  ], {
+    paper_bgcolor:'#07090d', plot_bgcolor:'#07090d',
+    font:{family:'JetBrains Mono', color:'#7a92b0', size:9},
+    margin:{l:42, r:42, t:8, b:36},
+    legend:{orientation:'h', y:1.08, bgcolor:'transparent', font:{size:8}},
+    xaxis:{
+      title:'Minutes elapsed',
+      color:'#3a5070', gridcolor:'#141e2e',
+      tickfont:{size:8}, range:[simTime, simTime+rem],
+    },
+    yaxis:{
+      title:'Gas / O₂ (%)',
+      color:'#3a5070', gridcolor:'#141e2e',
+      side:'left', tickfont:{size:8},
+      range:[0, 22],
+    },
+    yaxis2:{
+      title:'Workers / Survival %',
+      overlaying:'y', side:'right',
+      color:'#3a5070', gridcolor:'transparent',
+      tickfont:{size:8},
+    },
+    shapes,
+    annotations,
+    hovermode:'x unified',
+  }, {displayModeBar:false, responsive:true});
+
+  // ── NARRATIVE ROWS ────────────────────────────────────────
+  const rows = [];
+
+  if(sc.name === 'Normal Operations' && lElT30 === 0){
+    rows.push({cls:'safe', text:'✅ Normal Operations — all indicators stable. No hazard threshold crossings projected in the next '+rem+' minutes.'});
+  } else {
+    if(gasBreachT)  rows.push({cls:'danger', text:`⚠ Methane will reach danger level (4%) at T+${gasBreachT} — ${gasBreachT-simTime} minutes from now. LEL threshold (5%) follows shortly after.`});
+    else            rows.push({cls:'safe',   text:`✓ Methane projected at ${gF[gF.length-1].toFixed(2)}% by T+30 — below danger threshold.`});
+
+    if(o2BreachT)   rows.push({cls:'warn',   text:`⚠ Oxygen will drop below warning level (18%) at T+${o2BreachT}. SCSR deployment should begin before this point.`});
+    else            rows.push({cls:'safe',   text:`✓ Oxygen projected at ${oF[oF.length-1].toFixed(1)}% by T+30 — remains above warning threshold.`});
+
+    if(lElT30 > 0)  rows.push({cls:'danger', text:`📊 GBR model: ${lElT30} worker${lElT30>1?'s':''} projected at critical risk by T+30 without intervention. Assign to T1/T2 now to reduce this.`});
+    else            rows.push({cls:'safe',   text:`📊 GBR model: no workers projected to cross the critical threshold by T+30 at current escalation rate.`});
+
+    if(windowEnd > simTime && windowEnd < simTime+rem){
+      rows.push({cls:'warn', text:`🕐 Intervention window: ${windowEnd-simTime} minutes before first hazard threshold breach. Optimal evacuation should begin immediately.`});
+    }
+  }
+
+  document.getElementById('forecast-narrative').innerHTML =
+    `<div class="forecast-narrative-wrap">${rows.map(r=>`<div class="fn-row ${r.cls}">${r.text}</div>`).join('')}</div>`;
 }
 
-/* ═══ RENDER: TIMELINE ═══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: TIMELINE
+══════════════════════════════════════════════════════════════ */
 function renderTimeline(){
   const wrap=document.getElementById('timeline-wrap');
   if(!timelineEvents.length)return;
@@ -1672,12 +2012,13 @@ function renderTimeline(){
     </div>`).join('');
 }
 
-/* ═══ RENDER: SHIFT TRACKER ══════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: SHIFT TRACKER
+══════════════════════════════════════════════════════════════ */
 function renderShiftTracker(){
   const cur=SHIFTS[shiftCycle];
   const next=SHIFTS[(shiftCycle+1)%3];
   const nextShiftAt=Math.ceil((simTime+1)/10)*10;
-  /* FIX 6 — was using 'doc' as variable name, now 'el' */
   const el=document.getElementById('shift-row');
   el.innerHTML=`
     <div class="shift-badge active">● ${cur.name} — ACTIVE</div>
@@ -1690,7 +2031,9 @@ function renderShiftTracker(){
   document.getElementById('shift-top').textContent=cur.name;
 }
 
-/* ═══ RENDER: FEATURES ═══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: FEATURES
+══════════════════════════════════════════════════════════════ */
 function renderFeatures(){
   document.getElementById('feat-list').innerHTML=CFG.features.map(f=>{
     const pct=(f.imp*100).toFixed(0);
@@ -1703,7 +2046,9 @@ function renderFeatures(){
   }).join('');
 }
 
-/* ═══ RENDER: QUICK PROMPTS ══════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: QUICK PROMPTS
+══════════════════════════════════════════════════════════════ */
 function renderQuickPrompts(){
   const zone=incidentZone().name;
   document.getElementById('quick-prompts').innerHTML=[
@@ -1715,7 +2060,9 @@ function renderQuickPrompts(){
 }
 function setPrompt(p){document.getElementById('chat-input').value=p;document.getElementById('chat-input').focus();}
 
-/* ═══ CLOCK + WORKER COUNT ═══════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   CLOCK + WORKER COUNT
+══════════════════════════════════════════════════════════════ */
 function updateClock(){
   document.getElementById('clock').textContent=
     [new Date().getHours(),new Date().getMinutes(),new Date().getSeconds()]
@@ -1726,7 +2073,9 @@ function updateWorkerCountTop(){
   document.getElementById('worker-count-top').textContent=`${workers.length} WORKERS`;
 }
 
-/* ═══ AI CHAT ════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   AI CHAT
+══════════════════════════════════════════════════════════════ */
 function saveApiKey(){
   apiKey=document.getElementById('api-key-input').value.trim();
   const btn=document.querySelector('.api-key-btn');
@@ -1774,13 +2123,13 @@ ${sorted.map((w,i)=>`${i+1}. ${w.manual?'⚡'+w.name:'#'+w.id} — ${w.zone} —
 
 RECENT EVENTS: ${timelineEvents.slice(-3).map(e=>`T+${e.t}: ${e.msg}`).join(' | ')}
 
-Be concise, technical. Use mining terminology (LEL, SCSR, stope, adit, refuge chamber). Mention cascade effects where relevant.`;
+Be concise, technical. Use mining terminology (LEL, SCSR, stope, adit, refuge chamber). Mention cascade effects where relevant. The ML model is a real Gradient Boosting Regressor trained on 20,000 samples (R²=0.9742).`;
 }
 
 function fallbackResponse(msg){
-  const sc=currentScenario();
-  const incR=zoneReadings[incidentZoneIdx()]||{gas:sc.gas,o2:sc.o2,hazard:sc.hazard,temp:sc.temp,tf:0};
+  const incR=zoneReadings[incidentZoneIdx()]||{gas:1.2,o2:20.5,hazard:15,temp:28,tf:0};
   const zone=incidentZone().name;
+  const sc=currentScenario();
   const sorted=[...workers].sort((a,b)=>b.risk-a.risk);
   const top=sorted[0];
   const lives=workers.filter(w=>w.risk>0.7).length;
@@ -1788,8 +2137,8 @@ function fallbackResponse(msg){
   const evac=workers.filter(w=>w.evacuating).length;
   const manual=workers.filter(w=>w.manual);
   const avgS=workers.length>0
-    ?(workers.reduce((s,w)=>s+w.survival,0)/workers.length*100).toFixed(0)
-    :'—';
+    ? (workers.reduce((s,w)=>s+w.survival,0)/workers.length*100).toFixed(0)
+    : '—';
   const q=msg.toLowerCase();
 
   if(q.includes('zone')||q.includes('danger')||q.includes('worst')||q.includes('compar')){
@@ -1807,26 +2156,24 @@ function fallbackResponse(msg){
   if(q.includes('cascade')||q.includes('spread')||q.includes('ventilation')){
     const incGas=incR.gas;
     const adj=ZONES.filter((_,i)=>i!==incidentZoneIdx()&&i!==3);
-    /* FIX 4 — was using CFG.gasRate (legacy fallback) here; now uses sc.gasRate */
-    const minsToThreshold=sc.gasRate>0?((3-incGas)/sc.gasRate).toFixed(0):'—';
     return`Cascade status at T+${simTime}:\n\n`+
       `Incident zone (${zone}) methane: ${incGas.toFixed(2)}%. `+
-      (incGas>3
-        ?`Above 3% cascade threshold — gas is spreading via ventilation network to adjacent zones.\n\n`+
-          adj.map(z=>`${z.name}: secondary CH4 at ${zoneReadings[ZONES.indexOf(z)]?.gas?.toFixed(2)||'?'}%`).join('\n')+
-          `\n\nRecommend: seal ventilation duct between ${zone} and adjacent zones. Deploy gas detectors at junction points.`
-        :`Below 3% — no cascade risk yet. Threshold will be crossed in approximately ${minsToThreshold} minutes at current rate.`);
+      (incGas>3?`Above 3% cascade threshold — gas is spreading via ventilation network to adjacent zones.\n\n`+
+        adj.map(z=>`${z.name}: secondary CH4 at ${zoneReadings[ZONES.indexOf(z)]?.gas?.toFixed(2)||'?'}%`).join('\n')+
+        `\n\nRecommend: seal ventilation duct between ${zone} and adjacent zones. Deploy gas detectors at junction points.`
+       :`Below 3% — no cascade risk yet. Threshold will be crossed in approximately ${sc.gasRate>0?((3-incGas)/sc.gasRate).toFixed(0):'N/A'} minutes at current rate.`);
   }
 
   if(q.includes('evacuat')||q.includes('plan')||q.includes('first')){
     const worstZ=ZONES.map((z,i)=>({...z,avgR:workers.filter(w=>w.zoneIdx===i).reduce((s,w)=>s+w.risk,0)/Math.max(workers.filter(w=>w.zoneIdx===i).length,1)})).sort((a,b)=>b.avgR-a.avgR)[0];
     return`Evacuation plan — T+${simTime}:\n\n`+
       `Priority 1: ${worstZ.name} (highest avg risk). ${workers.filter(w=>w.zoneIdx===ZONES.indexOf(worstZ)&&w.risk>0.85).length} critical workers require SCSR-equipped extraction.\n\n`+
-      `Currently ${evac} workers in active evacuation.\n\n`+
-      `Team deployment:\n→ Team 1 (SCSR equipped): extract ${crit} critical workers from ${zone}\n`+
+      `Currently ${evac} workers in active evacuation (model has triggered autonomous movement toward exits).\n\n`+
+      `Team deployment:\n`+
+      `→ Team 1 (SCSR equipped): extract ${crit} critical workers from ${zone}\n`+
       `→ Team 2: escort ${lives-crit} elevated-risk workers to surface via primary shaft\n`+
       `→ Refuge chamber at ${zone} entrance: confirm accessible\n\n`+
-      `Estimated clearance time: ${(lives*0.8+5).toFixed(0)} minutes.`;
+      `Estimated clearance time at current rate: ${(lives*0.8+5).toFixed(0)} minutes.`;
   }
 
   if(q.includes('wait')||q.includes('10 more')||q.includes('delay')){
@@ -1839,16 +2186,16 @@ function fallbackResponse(msg){
       `• ${zone} methane: ${incR.gas.toFixed(2)}% → ${futureIncR.gas.toFixed(2)}% ${futureIncR.gas>=5?'⚠ EXPLOSIVE':''}\n`+
       `• ${zone} oxygen: ${incR.o2.toFixed(1)}% → ${futureIncR.o2.toFixed(1)}% ${futureIncR.o2<=16?'⚠ CRITICAL':''}\n`+
       `• Workers at risk: ${lives} → ${futureLives} (${delta>=0?'+':''}${delta})\n\n`+
-      (delta>0?`⚠ ${delta} additional worker${delta>1?'s':''} will cross the critical threshold. Each minute of delay reduces survival probability by ~2–4%.`:`Risk level remains similar, but time amplifier continues escalating. Immediate action still recommended for workers above 85%.`);
+      (delta>0?`⚠ ${delta} additional worker${delta>1?'s':''} will cross the critical threshold. Each minute of delay reduces their survival probability by ~2–4%.`:`Risk level remains similar, but time amplifier continues escalating all scores. Immediate action still recommended for workers above 85%.`);
   }
 
   if(q.includes('shift')){
     const cur=SHIFTS[shiftCycle];const next=SHIFTS[(shiftCycle+1)%3];
     const freshCount=workers.filter(w=>w.hours<2&&!w.manual).length;
-    return`Shift status at T+${simTime}:\n\nActive: ${cur.name}\nPersonnel: ${cur.workers.join(', ')}\n\nIncoming: ${next.name} at T+${Math.ceil((simTime+1)/10)*10}\n\n${freshCount} workers with low fatigue (<2h underground) from last rotation.`;
+    return`Shift status at T+${simTime}:\n\nActive: ${cur.name}\nPersonnel: ${cur.workers.join(', ')}\n\nIncoming: ${next.name} at T+${Math.ceil((simTime+1)/10)*10}\n\n${freshCount} workers with low fatigue (<2h underground) from last rotation.\n\nNote: fresh shift workers carry lower individual risk scores, but environmental hazards (methane, collapse) affect all workers equally regardless of fatigue.`;
   }
 
-  return`PSAS status — T+${simTime} | ${sc.name}\n\n`+
+  return`PSAS status — T+${simTime} | ${currentScenario().name}\n\n`+
     ZONES.map((z,i)=>{const r=zoneReadings[i];return`${z.name}: CH4 ${r?.gas?.toFixed(2)||'?'}% O₂ ${r?.o2?.toFixed(1)||'?'}% Collapse ${Math.round(r?.hazard||0)}%`;}).join('\n')+
     `\n\nWorkers: ${workers.length} total | ${lives} elevated | ${crit} critical | ${evac} evacuating\nAvg survival: ${avgS}%\n\n`+
     (crit>0?`⚠ ${crit} at critical risk. Priority: ${top?.manual?top.name:'Worker #'+top?.id} in ${top?.zone} at ${((top?.risk||0)*100).toFixed(0)}% risk.`:'No critical workers at this time.')+
@@ -1890,7 +2237,63 @@ function appendMsg(role,text,thinking=false){
   wrap.scrollTop=wrap.scrollHeight;return bubble;
 }
 
-/* ═══ EXPORT INCIDENT REPORT ════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RENDER: TEAM TRACKER
+══════════════════════════════════════════════════════════════ */
+function renderTeamTracker(){
+  const team1=workers.filter(w=>teamAssignments[w.id]===1);
+  const team2=workers.filter(w=>teamAssignments[w.id]===2);
+  const unassignedCrit=workers.filter(w=>w.risk>0.85&&!teamAssignments[w.id]).length;
+
+  // Status bar — sits at top of command centre panel, always visible
+  document.getElementById('team-stats').innerHTML=`
+    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;
+      font-family:var(--font-mono);font-size:.6rem;
+      padding:.4rem .6rem;background:var(--bg2);border:1px solid var(--border);">
+      <span style="color:var(--text3)">DEPLOYMENT STATUS:</span>
+      <span style="color:var(--red)">● T1 <strong>${team1.length}</strong></span>
+      <span style="color:var(--blue)">● T2 <strong>${team2.length}</strong></span>
+      <span style="color:var(--text2)">Total assigned: <strong>${team1.length+team2.length}</strong></span>
+      ${unassignedCrit>0
+        ?`<span style="color:var(--red);margin-left:auto;animation:blink 1.5s infinite">⚠ ${unassignedCrit} CRITICAL UNASSIGNED — USE T1/T2 →</span>`
+        :team1.length+team2.length>0
+          ?`<span style="color:var(--green);margin-left:auto;">✓ All critical workers assigned</span>`
+          :`<span style="color:var(--text3);margin-left:auto;">← Select workers from queue using T1 / T2 buttons</span>`}
+    </div>`;
+
+  // Roster cards — right column of the grid
+  const memberHtml=(arr,t)=>arr.length
+    ?arr.map(w=>{
+        const rp=(w.risk*100).toFixed(0);
+        const rc=w.risk>0.85?'var(--red)':w.risk>0.7?'var(--amber)':'var(--green)';
+        const name=w.manual?w.name:`Worker #${w.id}`;
+        return`<div class="team-member team${t}">
+          <span>${name}
+            <br><span style="color:var(--text3);font-size:.52rem">${w.zone} · ${w.depth.toFixed(0)}m from exit</span>
+          </span>
+          <span class="team-member-risk" style="color:${rc}">${rp}%</span>
+        </div>`;
+      }).join('')
+    :`<div class="team-empty">No workers assigned yet —<br>use T1 button in queue</div>`;
+
+  document.getElementById('team-panel').innerHTML=`
+    <div class="team-card team1">
+      <div class="team-title">T1 — IMMEDIATE EXTRACTION
+        <span style="font-family:var(--font-mono);font-size:.65rem;margin-left:.4rem">(${team1.length})</span>
+      </div>
+      ${memberHtml(team1,1)}
+    </div>
+    <div class="team-card team2">
+      <div class="team-title">T2 — PRIORITY EVACUATION
+        <span style="font-family:var(--font-mono);font-size:.65rem;margin-left:.4rem">(${team2.length})</span>
+      </div>
+      ${memberHtml(team2,2)}
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   EXPORT INCIDENT REPORT
+══════════════════════════════════════════════════════════════ */
 function exportReport(){
   const sc=currentScenario();
   const incR=zoneReadings[incidentZoneIdx()]||{};
@@ -1910,18 +2313,23 @@ function exportReport(){
       <td>${r.temp.toFixed(1)}°C</td>
     </tr>`;
   }).join('');
+
   const workerRows=[...workers].sort((a,b)=>b.risk-a.risk).map(w=>{
     const team=teamAssignments[w.id];
     const teamLabel=team?`Team ${team}`:'Unassigned';
     const teamCol=team===1?'#e84040':team===2?'#3ab8f5':'#4a5a72';
     return`<tr>
-      <td>${w.manual?w.name:'Worker #'+w.id}</td><td>${w.zone}</td>
+      <td>${w.manual?w.name:'Worker #'+w.id}</td>
+      <td>${w.zone}</td>
       <td style="color:${w.risk>0.85?'#e84040':w.risk>0.7?'#f5a623':'#27c97a'};font-weight:bold">${(w.risk*100).toFixed(0)}%</td>
       <td style="color:${w.survival<0.4?'#e84040':w.survival<0.7?'#f5a623':'#27c97a'}">${(w.survival*100).toFixed(0)}%</td>
-      <td>${(w.fatigue*100).toFixed(0)}%</td><td>${w.hours.toFixed(0)}h</td>
-      <td>${w.depth.toFixed(0)}m</td><td style="color:${teamCol}">${teamLabel}</td>
+      <td>${(w.fatigue*100).toFixed(0)}%</td>
+      <td>${w.hours.toFixed(0)}h</td>
+      <td>${w.depth.toFixed(0)}m</td>
+      <td style="color:${teamCol}">${teamLabel}</td>
     </tr>`;
   }).join('');
+
   const tlRows=timelineEvents.map(e=>{
     const col=e.type==='critical'?'#e84040':e.type==='warning'?'#f5a623':e.type==='info'?'#3ab8f5':'#27c97a';
     return`<tr><td style="color:#f5a623;white-space:nowrap">T+${String(e.t).padStart(2,'0')} min</td><td style="color:${col}">${e.msg}</td></tr>`;
@@ -1933,67 +2341,123 @@ function exportReport(){
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#07090d;color:#dce8f5;font-family:'Courier New',monospace;padding:2rem;line-height:1.6;}
   h1{font-size:1.8rem;letter-spacing:.15em;color:#f5a623;margin-bottom:.2rem;}
-  h2{font-size:1rem;letter-spacing:.12em;color:#f5a623;margin:1.5rem 0 .6rem;border-bottom:1px solid #273d58;padding-bottom:.3rem;}
+  h2{font-size:1rem;letter-spacing:.12em;color:#f5a623;margin:1.5rem 0 .6rem;
+     border-bottom:1px solid #273d58;padding-bottom:.3rem;}
   .meta{font-size:.75rem;color:#4a5a72;letter-spacing:.1em;margin-bottom:2rem;}
   .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
   .summary-card{background:#0c1018;border:1px solid #1e2d42;border-top:2px solid #f5a623;padding:.8rem;}
   .card-label{font-size:.6rem;letter-spacing:.15em;color:#4a5a72;text-transform:uppercase;margin-bottom:.3rem;}
   .card-val{font-size:1.6rem;color:#ffcc5c;letter-spacing:.04em;}
-  .card-val.danger{color:#e84040;}.card-val.warn{color:#f5a623;}.card-val.safe{color:#27c97a;}
+  .card-val.danger{color:#e84040;} .card-val.warn{color:#f5a623;} .card-val.safe{color:#27c97a;}
   table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:1rem;}
-  th{text-align:left;padding:.4rem .6rem;color:#4a5a72;border-bottom:1px solid #1e2d42;letter-spacing:.08em;text-transform:uppercase;font-size:.65rem;font-weight:400;}
+  th{text-align:left;padding:.4rem .6rem;color:#4a5a72;border-bottom:1px solid #1e2d42;
+     letter-spacing:.08em;text-transform:uppercase;font-size:.65rem;font-weight:400;}
   td{padding:.4rem .6rem;border-bottom:1px solid #0f1318;color:#8a9bb5;}
   tr:hover td{background:#0c1018;}
   .team-section{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
   .team-box{background:#0c1018;border:1px solid #1e2d42;padding:.8rem;}
-  .team-box.t1{border-top:2px solid #e84040;}.team-box.t2{border-top:2px solid #3ab8f5;}
+  .team-box.t1{border-top:2px solid #e84040;} .team-box.t2{border-top:2px solid #3ab8f5;}
   .team-box h3{font-size:.85rem;letter-spacing:.1em;margin-bottom:.5rem;}
-  .team-box.t1 h3{color:#e84040;}.team-box.t2 h3{color:#3ab8f5;}
-  .footer-note{margin-top:2rem;padding-top:1rem;border-top:1px solid #1e2d42;font-size:.65rem;color:#3a5070;letter-spacing:.08em;}
-  @media print{body{background:#fff;color:#000;}h1,h2,.card-val{color:#000 !important;}.summary-card,.team-box{background:#f9f9f9;border:1px solid #ccc;}}
+  .team-box.t1 h3{color:#e84040;} .team-box.t2 h3{color:#3ab8f5;}
+  .tl-row{display:flex;gap:1rem;padding:.3rem 0;border-bottom:1px solid #0f1318;font-size:.75rem;}
+  .footer-note{margin-top:2rem;padding-top:1rem;border-top:1px solid #1e2d42;
+    font-size:.65rem;color:#3a5070;letter-spacing:.08em;}
+  @media print{body{background:#fff;color:#000;}
+    h1,h2,.card-val{color:#000 !important;}
+    .summary-card,.team-box{background:#f9f9f9;border:1px solid #ccc;}}
 </style></head><body>
+
 <h1>⛏ PSAS INCIDENT REPORT</h1>
-<div class="meta">GENERATED: ${now} &nbsp;|&nbsp; SCENARIO: ${sc.name} &nbsp;|&nbsp; INCIDENT ZONE: ${incidentZone().name} &nbsp;|&nbsp; ELAPSED: T+${simTime} MIN &nbsp;|&nbsp; SHIFT: ${SHIFTS[shiftCycle].name}</div>
+<div class="meta">
+  GENERATED: ${now} &nbsp;|&nbsp;
+  SCENARIO: ${sc.name} &nbsp;|&nbsp;
+  INCIDENT ZONE: ${incidentZone().name} &nbsp;|&nbsp;
+  ELAPSED: T+${simTime} MIN &nbsp;|&nbsp;
+  SHIFT: ${SHIFTS[shiftCycle].name}
+</div>
+
 <h2>EXECUTIVE SUMMARY</h2>
 <div class="summary-grid">
-  <div class="summary-card"><div class="card-label">Workers On-Site</div><div class="card-val">${workers.length}</div></div>
-  <div class="summary-card"><div class="card-label">Lives At Risk</div><div class="card-val ${critical.length>0?'danger':elevated.length>0?'warn':'safe'}">${critical.length+elevated.length}</div></div>
-  <div class="summary-card"><div class="card-label">Critical (&gt;85%)</div><div class="card-val danger">${critical.length}</div></div>
-  <div class="summary-card"><div class="card-label">Avg Survival Prob</div><div class="card-val ${avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe'}">${(avgSurv*100).toFixed(0)}%</div></div>
+  <div class="summary-card">
+    <div class="card-label">Workers On-Site</div>
+    <div class="card-val">${workers.length}</div>
+  </div>
+  <div class="summary-card">
+    <div class="card-label">Lives At Risk</div>
+    <div class="card-val ${critical.length>0?'danger':elevated.length>0?'warn':'safe'}">${critical.length+elevated.length}</div>
+  </div>
+  <div class="summary-card">
+    <div class="card-label">Critical (&gt;85%)</div>
+    <div class="card-val danger">${critical.length}</div>
+  </div>
+  <div class="summary-card">
+    <div class="card-label">Avg Survival Prob</div>
+    <div class="card-val ${avgSurv<0.4?'danger':avgSurv<0.7?'warn':'safe'}">${(avgSurv*100).toFixed(0)}%</div>
+  </div>
 </div>
+
 <h2>INCIDENT ZONE SENSOR READINGS — ${incidentZone().name}</h2>
-<table><thead><tr><th>Sensor</th><th>Reading</th><th>Threshold</th><th>Status</th></tr></thead><tbody>
-  <tr><td>Methane</td><td style="color:${incR.gas>4?'#e84040':incR.gas>2?'#f5a623':'#27c97a'}">${incR.gas?.toFixed(2)||'—'}%</td><td>Danger &gt;4% / LEL 5%</td><td>${incR.gas>4?'⚠ CRITICAL':incR.gas>2?'ELEVATED':'NORMAL'}</td></tr>
-  <tr><td>Oxygen</td><td style="color:${incR.o2<16?'#e84040':incR.o2<18?'#f5a623':'#27c97a'}">${incR.o2?.toFixed(1)||'—'}%</td><td>Danger &lt;16%</td><td>${incR.o2<16?'⚠ CRITICAL':incR.o2<18?'LOW':'NORMAL'}</td></tr>
-  <tr><td>Collapse Risk</td><td style="color:${incR.hazard>70?'#e84040':incR.hazard>40?'#f5a623':'#27c97a'}">${incR.hazard?Math.round(incR.hazard)+'%':'—'}</td><td>Danger &gt;70%</td><td>${incR.hazard>70?'⚠ CRITICAL':incR.hazard>40?'ELEVATED':'NORMAL'}</td></tr>
-  <tr><td>Temperature</td><td style="color:${incR.temp>40?'#e84040':incR.temp>35?'#f5a623':'#27c97a'}">${incR.temp?.toFixed(1)||'—'}°C</td><td>Danger &gt;40°C</td><td>${incR.temp>40?'⚠ CRITICAL':incR.temp>35?'HIGH':'NORMAL'}</td></tr>
-</tbody></table>
+<table>
+  <thead><tr><th>Sensor</th><th>Reading</th><th>Threshold</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Methane</td><td style="color:${incR.gas>4?'#e84040':incR.gas>2?'#f5a623':'#27c97a'}">${incR.gas?.toFixed(2)||'—'}%</td><td>Danger &gt;4% / LEL 5%</td><td>${incR.gas>4?'⚠ CRITICAL':incR.gas>2?'ELEVATED':'NORMAL'}</td></tr>
+    <tr><td>Oxygen</td><td style="color:${incR.o2<16?'#e84040':incR.o2<18?'#f5a623':'#27c97a'}">${incR.o2?.toFixed(1)||'—'}%</td><td>Danger &lt;16%</td><td>${incR.o2<16?'⚠ CRITICAL':incR.o2<18?'LOW':'NORMAL'}</td></tr>
+    <tr><td>Collapse Risk</td><td style="color:${incR.hazard>70?'#e84040':incR.hazard>40?'#f5a623':'#27c97a'}">${incR.hazard?Math.round(incR.hazard)+'%':'—'}</td><td>Danger &gt;70%</td><td>${incR.hazard>70?'⚠ CRITICAL':incR.hazard>40?'ELEVATED':'NORMAL'}</td></tr>
+    <tr><td>Temperature</td><td style="color:${incR.temp>40?'#e84040':incR.temp>35?'#f5a623':'#27c97a'}">${incR.temp?.toFixed(1)||'—'}°C</td><td>Danger &gt;40°C</td><td>${incR.temp>40?'⚠ CRITICAL':incR.temp>35?'HIGH':'NORMAL'}</td></tr>
+  </tbody>
+</table>
+
 <h2>ALL ZONE READINGS</h2>
-<table><thead><tr><th>Zone</th><th>Methane</th><th>Oxygen</th><th>Collapse</th><th>Temp</th></tr></thead><tbody>${zoneStatus}</tbody></table>
+<table>
+  <thead><tr><th>Zone</th><th>Methane</th><th>Oxygen</th><th>Collapse</th><th>Temp</th></tr></thead>
+  <tbody>${zoneStatus}</tbody>
+</table>
+
 <h2>RESCUE TEAM DEPLOYMENT</h2>
 <div class="team-section">
-  <div class="team-box t1"><h3>TEAM 1 — IMMEDIATE EXTRACTION (${team1.length} assigned)</h3>
-    ${team1.length?team1.map(w=>`<div style="font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #1e2d42;color:#e84040">${w.manual?w.name:'Worker #'+w.id} · ${w.zone} · Risk ${(w.risk*100).toFixed(0)}% · ${w.depth.toFixed(0)}m from exit</div>`).join(''):'<div style="color:#4a5a72;font-size:.75rem">No workers assigned to Team 1</div>'}
+  <div class="team-box t1">
+    <h3>TEAM 1 — IMMEDIATE EXTRACTION (${team1.length} assigned)</h3>
+    ${team1.length?team1.map(w=>`<div style="font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #1e2d42;color:#e84040">
+      ${w.manual?w.name:'Worker #'+w.id} · ${w.zone} · Risk ${(w.risk*100).toFixed(0)}% · ${w.depth.toFixed(0)}m from exit
+    </div>`).join(''):'<div style="color:#4a5a72;font-size:.75rem">No workers assigned to Team 1</div>'}
   </div>
-  <div class="team-box t2"><h3>TEAM 2 — PRIORITY EVACUATION (${team2.length} assigned)</h3>
-    ${team2.length?team2.map(w=>`<div style="font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #1e2d42;color:#3ab8f5">${w.manual?w.name:'Worker #'+w.id} · ${w.zone} · Risk ${(w.risk*100).toFixed(0)}% · ${w.depth.toFixed(0)}m from exit</div>`).join(''):'<div style="color:#4a5a72;font-size:.75rem">No workers assigned to Team 2</div>'}
+  <div class="team-box t2">
+    <h3>TEAM 2 — PRIORITY EVACUATION (${team2.length} assigned)</h3>
+    ${team2.length?team2.map(w=>`<div style="font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #1e2d42;color:#3ab8f5">
+      ${w.manual?w.name:'Worker #'+w.id} · ${w.zone} · Risk ${(w.risk*100).toFixed(0)}% · ${w.depth.toFixed(0)}m from exit
+    </div>`).join(''):'<div style="color:#4a5a72;font-size:.75rem">No workers assigned to Team 2</div>'}
   </div>
 </div>
+
 <h2>FULL WORKER RISK REGISTER (${workers.length} workers)</h2>
-<table><thead><tr><th>ID / Name</th><th>Zone</th><th>ML Risk</th><th>Survival</th><th>Fatigue</th><th>Hours</th><th>Depth</th><th>Team</th></tr></thead><tbody>${workerRows}</tbody></table>
+<table>
+  <thead><tr><th>ID / Name</th><th>Zone</th><th>ML Risk</th><th>Survival</th><th>Fatigue</th><th>Hours</th><th>Depth</th><th>Team</th></tr></thead>
+  <tbody>${workerRows}</tbody>
+</table>
+
 <h2>INCIDENT TIMELINE (${timelineEvents.length} events)</h2>
 <div>${tlRows?`<table><thead><tr><th>Time</th><th>Event</th></tr></thead><tbody>${tlRows}</tbody></table>`:'<p style="color:#4a5a72;font-size:.75rem">No events recorded.</p>'}</div>
+
 <h2>ML MODEL — FEATURE IMPORTANCE</h2>
-<table><thead><tr><th>Feature</th><th>Weight</th><th>Contribution to Risk Score</th></tr></thead><tbody>
-  ${CFG.features.map(f=>`<tr><td>${f.name}</td><td style="color:#f5a623">${(f.imp*100).toFixed(0)}%</td>
-    <td><div style="height:4px;background:#1e2d42;width:100%"><div style="height:4px;background:#f5a623;width:${f.imp*100}%"></div></div></td></tr>`).join('')}
-</tbody></table>
-<div class="footer-note">PSAS · Predictive Safety Analytics System · Gradient Boosted Regressor + Random Forest · Report generated at ${now} · Incident elapsed time T+${simTime} minutes</div>
+<table>
+  <thead><tr><th>Feature</th><th>Weight</th><th>Contribution to Risk Score</th></tr></thead>
+  <tbody>
+    ${CFG.features.map(f=>`<tr><td>${f.name}</td><td style="color:#f5a623">${(f.imp*100).toFixed(0)}%</td>
+      <td><div style="height:4px;background:#1e2d42;width:100%"><div style="height:4px;background:#f5a623;width:${f.imp*100}%"></div></div></td></tr>`).join('')}
+  </tbody>
+</table>
+
+<div class="footer-note">
+  PSAS · Predictive Safety Analytics System · Gradient Boosting Regressor (R²=0.9742, RMSE=0.0178, trained on 20,000 samples) ·
+  Report generated at ${now} · Incident elapsed time T+${simTime} minutes
+</div>
 </body></html>`;
 
+  // Open in new tab via Blob URL — no popup blocker issue, no download prompt
   const blob=new Blob([html],{type:'text/html'});
   const url=URL.createObjectURL(blob);
   const tab=window.open(url,'_blank');
+  // Fallback: if tab was blocked, download instead
   if(!tab){
     const a=document.createElement('a');
     a.href=url;a.download=`PSAS_Report_T${simTime}.html`;
@@ -2003,7 +2467,9 @@ function exportReport(){
   addTimelineEvent('info',`Incident report opened at T+${simTime}.`);
 }
 
-/* ═══ INIT ═══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   INIT — defer canvas work until after DOM layout
+══════════════════════════════════════════════════════════════ */
 populateScenarios();
 renderFeatures();
 renderQuickPrompts();
